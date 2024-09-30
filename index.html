@@ -11,12 +11,19 @@
         a:hover { text-decoration: underline; }
         .breadcrumbs { margin-bottom: 10px; }
         .breadcrumbs a { margin-right: 5px; }
+        .home-button {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #2ecc71;
+        }
     </style>
 </head>
 <body>
 
 <h1>KIN109 Visuals</h1>
-<div class="breadcrumbs"></div>
+<div class="breadcrumbs">
+    <a href="#" class="home-button" onclick="navigateTo('')">Home</a>
+</div>
 <ul id="file-list"></ul>
 
 <script>
@@ -59,7 +66,9 @@
 
     function updateBreadcrumbs(path) {
         const breadcrumbs = document.querySelector('.breadcrumbs');
-        breadcrumbs.innerHTML = '';
+        // Clear breadcrumbs, keep home button
+        breadcrumbs.innerHTML = `<a href="#" class="home-button" onclick="navigateTo('')">Home</a> `;
+        
         const parts = path.split('/').filter(Boolean);
         let currentPath = '';
         parts.forEach((part, index) => {
