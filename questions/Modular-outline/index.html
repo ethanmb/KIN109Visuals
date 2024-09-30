@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Quiz with CSV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        #container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: white;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%; /* Ensures the container takes up full height */
+        }
+        h1, h2 {
+            font-weight: 600;
+        }
+        form {
+            font-weight: 400;
+            text-align: left;
+            margin: 20px 0;
+        }
+        .feedback {
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        #controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px;
+            font-size: 1em;
+            margin: 5px;
+        }
+        button:disabled {
+            background-color: #cccccc;
+        }
+        #progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            margin-top: 20px;
+        }
+        #progress {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1>Check Your Understanding</h1>
+        
+        <div id="quiz-container">
+            <!-- Questions will be displayed here -->
+        </div>
+
+        <div id="controls">
+            <button id="back-button" disabled>Back</button>
+            <button id="next-button" disabled>Next</button> <!-- Initially disabled -->
+        </div>
+
+        <div id="progress-bar">
+            <div id="progress"></div>
+        </div>
+    </div>
+
+    <!-- Include PapaParse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <script>
+        let questions = [];
+        let currentQuestionIndex = 0;
+
+        // Function to load CSV file and parse it into questions array using PapaParse
+        function loadCSVFile(url) {
+            fetch(url)
+                .then(response => response.text())
+                .then(csvText => {
+                    Papa.parse(csvText, {
+                        header: false,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            results.data.forEach(row => {
+                                const [
+                                    question, num_options, option1, option2, option3, option4, option5, option6, option7, correctAnswer, feedbackCorrect, feedbackIncorrect, questionType
+                                ] = row;
+                                
+                                questions.push({
+                                    question: question?.trim(),
+                                    numOptions: parseInt(num_options?.trim()),
+                                    options: [
+                                        option1?.trim(), option2?.trim(), option3?.trim(), 
+                                        option4?.trim(), option5?.trim(), option6?.trim(), option7?.trim()
+                                    ].filter(option => option !== ""), // Filter out empty options
+                                    correctAnswer: correctAnswer?.trim(),
+                                    feedbackCorrect: feedbackCorrect?.trim(),
+                                    feedbackIncorrect: feedbackIncorrect?.trim(),
+                                    questionType: questionType?.trim() || 'mcq' // Default to 'mcq'
+                                });
+                            });
+                            renderQuestion();
+                        }
+                    });
+                });
+        }
+
+        const quizContainer = document.getElementById('quiz-container');
+        const backButton = document.getElementById('back-button');
+        const nextButton = document.getElementById('next-button');
+        const progressBar = document.getElementById('progress');
+
+        function renderQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            let questionHtml = '';
+
+            if (currentQuestion.questionType === 'mcq') {
+                // Multiple-choice question rendering
+                let optionsHtml = '';
+                for (let i = 0; i < currentQuestion.numOptions; i++) {
+                    optionsHtml += `
+                        <input type="radio" id="option${i}" name="answer" value="${currentQuestion.options[i]}">
+                        <label for="option${i}">${currentQuestion.options[i]}</label><br>
+                    `;
+                }
+                questionHtml = `
+                    <h2>Question ${currentQuestionIndex + 1}</h2>
+                    <p>${currentQuestion.question}</p>
+                    <form id="quizForm">
+                        ${optionsHtml}
+                        <div id="feedback${currentQuestionIndex + 1}" class="feedback"></div>
+                        <button type="button" onclick="checkAnswer()">Submit</button>
+                    </form>
+                `;
+            } else if (currentQuestion.questionType === 'fitb') {
+                // Fill-in-the-blank question rendering
+                questionHtml = `
+                    <h2>Question ${currentQuestionIndex + 1}</h2>
+                    <p>${currentQuestion.question}</p>
+                    <form id="quizForm">
+                        <input type="text" id="fitbAnswer" placeholder="Enter your answer"><br>
+                        <div id="feedback${currentQuestionIndex + 1}" class="feedback"></div>
+                        <button type="button" onclick="checkAnswer()">Submit</button>
+                    </form>
+                `;
+            }
+
+            quizContainer.innerHTML = questionHtml;
+            progressBar.style.width = ((currentQuestionIndex + 1) / questions.length) * 100 + '%';
+
+            // Enable/disable the back and next buttons based on the question index
+            backButton.disabled = currentQuestionIndex === 0;
+            nextButton.disabled = currentQuestionIndex === questions.length - 1;
+        }
+
+        function checkAnswer() {
+            const currentQuestion = questions[currentQuestionIndex];
+            const feedbackElement = document.getElementById(`feedback${currentQuestionIndex + 1}`);
+
+            // Reset feedback element and class
+            feedbackElement.className = 'feedback';
+            feedbackElement.style.display = 'none';
+
+            let isCorrect = false;
+
+            if (currentQuestion.questionType === 'mcq') {
+                const selectedOption = document.querySelector('input[name="answer"]:checked');
+                if (!selectedOption) {
+                    feedbackElement.innerHTML = 'Please select an option.';
+                    feedbackElement.classList.add('incorrect');
+                    feedbackElement.style.display = 'block';
+                    return;
+                }
+                const selectedOptionId = selectedOption.id;
+                const correctOptionId = `option${parseInt(currentQuestion.correctAnswer.replace('option', '')) - 1}`;
+
+                if (selectedOptionId === correctOptionId) {
+                    isCorrect = true;
+                    feedbackElement.innerHTML = currentQuestion.feedbackCorrect;
+                    feedbackElement.classList.add('correct');
+                } else {
+                    feedbackElement.innerHTML = currentQuestion.feedbackIncorrect;
+                    feedbackElement.classList.add('incorrect');
+                }
+            } else if (currentQuestion.questionType === 'fitb') {
+                const userAnswer = document.getElementById('fitbAnswer').value.trim().toLowerCase();
+                const correctAnswer = currentQuestion.correctAnswer.toLowerCase();
+
+                if (userAnswer === correctAnswer) {
+                    isCorrect = true;
+                    feedbackElement.innerHTML = currentQuestion.feedbackCorrect;
+                    feedbackElement.classList.add('correct');
+                } else {
+                    feedbackElement.innerHTML = currentQuestion.feedbackIncorrect;
+                    feedbackElement.classList.add('incorrect');
+                }
+            }
+
+            feedbackElement.style.display = 'block';
+
+            // Enable the "Next" button after the answer is submitted
+            nextButton.disabled = false;
+        }
+
+        // Back button functionality
+        backButton.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        });
+
+        // Next button functionality
+        nextButton.addEventListener('click', () => {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+            // Disable the "Next" button until the answer is submitted
+            nextButton.disabled = true;
+        });
+
+        // Load the CSV file (replace 'questions.csv' with the actual path to your CSV file)
+        loadCSVFile('questions.csv');
+    </script>
+
+</body>
+</html>

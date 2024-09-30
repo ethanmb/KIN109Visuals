@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Normal Distribution</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      width: 120px;
+      height: 60px;
+      padding: 2px;
+      font: 22px 'Helvetica Neue', sans-serif;
+      background: #507A55;
+      border: 1px;
+      border-radius: 8px;
+      pointer-events: none;
+    }    
+    .area {
+      opacity: 0.6;
+    }
+    .line {
+      fill: none;
+      stroke-width: 2;
+    }
+    .slider-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .slider-label {
+      width: 120px;
+      text-align: right;
+      margin-right: 10px;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 300px;
+      height: 8px;
+      margin: 0;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #8CE097;
+      border-radius: 1.3px;
+      border: 0.2px solid #010101;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    /* Mean Slider */
+    #mean {
+      accent-color: blue;
+    }
+    #mean::-webkit-slider-runnable-track {
+      background: blue;
+    }
+    #mean::-webkit-slider-thumb {
+      background: blue;
+    }
+    /* SD Slider */
+    #sigma {
+      accent-color: red;
+    }
+    #sigma::-webkit-slider-runnable-track {
+      background: red;
+    }
+    #sigma::-webkit-slider-thumb {
+      background: red;
+    }
+    /* Xmin Slider */
+    #xmin {
+      accent-color: #4DB661;
+    }
+    #xmin::-webkit-slider-runnable-track {
+      background: #4DB661;
+    }
+    #xmin::-webkit-slider-thumb {
+      background: #4DB661;
+    }
+    /* Xmax Slider */
+    #xmax {
+      accent-color: purple;
+    }
+    #xmax::-webkit-slider-runnable-track {
+      background: purple;
+    }
+    #xmax::-webkit-slider-thumb {
+      background: purple;
+    }
+  </style>
+</head>
+<body>
+  <div class="slider-container">
+    <label for="mean" class="slider-label">Mean (μ): </label>
+    <input type="range" id="mean" name="mean" min="35" max="65" step="1" value="50">
+    <span id="meanValue">50</span>
+  </div>
+  <div class="slider-container">
+    <label for="sigma" class="slider-label">Standard Deviation (σ): </label>
+    <input type="range" id="sigma" name="sigma" min="5" max="20" step="0.1" value="7">
+    <span id="sigmaValue">7</span>
+  </div>
+  <div class="slider-container">
+    <label for="xmin" class="slider-label">X(min): </label>
+    <input type="range" id="xmin" name="xmin" min="35" max="65" step="1" value="47">
+    <span id="xminValue">47</span>
+  </div>
+  <div class="slider-container">
+    <label for="xmax" class="slider-label">X(max): </label>
+    <input type="range" id="xmax" name="xmax" min="35" max="65" step="1" value="53">
+    <span id="xmaxValue">53</span>
+  </div>
+  <svg width="800" height="400"></svg>
+  <script src="script.js"></script>
+</body>
+</html>

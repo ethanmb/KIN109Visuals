@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIN109 Visuals File Browser</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        ul { list-style: none; padding-left: 0; }
+        a { text-decoration: none; color: #3498db; }
+        a:hover { text-decoration: underline; }
+        .breadcrumbs { margin-bottom: 10px; }
+        .breadcrumbs a { margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+<h1>KIN109 Visuals</h1>
+<div class="breadcrumbs"></div>
+<ul id="file-list"></ul>
+
+<script>
+    const repo = 'ethanmb/KIN109visuals';
+    const branch = 'main';
+    const apiURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
+
+    async function fetchRepoStructure() {
+        const response = await fetch(apiURL);
+        const data = await response.json();
+        return data.tree;
+    }
+
+    function displayFiles(files, path = '') {
+        const fileList = document.getElementById('file-list');
+        fileList.innerHTML = ''; // Clear the list
+
+        const filteredFiles = files.filter(file => file.path.startsWith(path));
+        filteredFiles.forEach(file => {
+            const relativePath = file.path.replace(path, '');
+            const isHTMLFile = file.path.endsWith('.html');
+            if (relativePath.includes('/')) {
+                const folder = relativePath.split('/')[0];
+                const folderExists = document.querySelector(`li[data-folder="${folder}"]`);
+                if (!folderExists) {
+                    const li = document.createElement('li');
+                    li.setAttribute('data-folder', folder);
+                    li.innerHTML = `<a href="#" onclick="navigateTo('${path + folder}/')">${folder}/</a>`;
+                    fileList.appendChild(li);
+                }
+            } else if (isHTMLFile) {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="https://ethanmb.github.io/KIN109visuals/${file.path}">${relativePath}</a>`;
+                fileList.appendChild(li);
+            }
+        });
+
+        updateBreadcrumbs(path);
+    }
+
+    function updateBreadcrumbs(path) {
+        const breadcrumbs = document.querySelector('.breadcrumbs');
+        breadcrumbs.innerHTML = '';
+        const parts = path.split('/').filter(Boolean);
+        let currentPath = '';
+        parts.forEach((part, index) => {
+            currentPath += part + '/';
+            breadcrumbs.innerHTML += `<a href="#" onclick="navigateTo('${currentPath}')">${part}</a> / `;
+        });
+    }
+
+    function navigateTo(path) {
+        fetchRepoStructure().then(files => displayFiles(files, path));
+    }
+
+    // Initial load
+    fetchRepoStructure().then(files => displayFiles(files));
+
+</script>
+
+</body>
+</html>

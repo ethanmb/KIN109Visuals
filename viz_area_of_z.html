@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Normal Distribution</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      width: 120px;
+      height: 60px;
+      padding: 2px;
+      font: 22px 'Helvetica Neue', sans-serif;
+      background: #507A55;
+      border: 1px;
+      border-radius: 8px;
+      pointer-events: none;
+    }    
+    .area {
+      opacity: 0.6;
+      fill: #73DD9B; /* Emerald */
+    }
+    .line {
+      fill: none;
+      stroke: #324B35; /* Cal Poly Green */
+      stroke-width: 2;
+    }
+    .dotted-line {
+      stroke: #04A17C; /* Jungle Green */
+      stroke-width: 2;
+    }
+    .critical-line {
+      stroke: #507A55; 
+      stroke-width: 2;
+      stroke-dasharray: 4 2;
+    }
+    input[type="radio"] {
+      accent-color: #324B35; /* Cal Poly Green */
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <label><input type="radio" name="tail" value="below" checked> Below Z</label>
+    <label><input type="radio" name="tail" value="above"> Above Z</label>
+  </div>
+  <svg width="800" height="400"></svg>
+  <script>
+    const svg = d3.select("svg");
+    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+    const width = svg.attr("width") - margin.left - margin.right;
+    const height = svg.attr("height") - margin.top - margin.bottom;
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleLinear().range([0, width]).domain([-4, 4]);
+    const y = d3.scaleLinear().range([height, 0]).domain([0, 0.5]);
+
+    const line = d3.line()
+      .x(d => x(d.x))
+      .y(d => y(d.y));
+
+    const area = d3.area()
+      .x(d => x(d.x))
+      .y0(height)
+      .y1(d => y(d.y));
+
+    const tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+    const normalDistribution = (z) => {
+      return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * z * z);
+    };
+
+    const cumulativeNormalDistribution = (z) => {
+      return 0.5 * (1 + erf(z / Math.sqrt(2)));
+    };
+
+    const erf = (x) => {
+      const sign = x >= 0 ? 1 : -1;
+      x = Math.abs(x);
+      const a1 = 0.254829592;
+      const a2 = -0.284496736;
+      const a3 = 1.421413741;
+      const a4 = -1.453152027;
+      const a5 = 1.061405429;
+      const p = 0.3275911;
+      const t = 1.0 / (1.0 + p * x);
+      const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+      return sign * y;
+    };
+
+    const updateDistribution = () => {
+      const tail = d3.select('input[name="tail"]:checked').node().value;
+
+      const data = d3.range(-4, 4, 0.01).map(z => ({
+        x: z,
+        y: normalDistribution(z)
+      }));
+
+      g.selectAll("*").remove();
+
+      g.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line);
+
+      g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+
+      const verticalLine = g.append("line")
+        .attr("class", "dotted-line")
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("display", "none");
+
+      svg.on("mousemove", function(event) {
+        const [mouseX] = d3.pointer(event, this);
+        const mouseZ = x.invert(mouseX - margin.left);
+
+        let pValue;
+        if (tail === "below") {
+          pValue = cumulativeNormalDistribution(mouseZ);
+        } else {
+          pValue = 1 - cumulativeNormalDistribution(mouseZ);
+        }
+
+        verticalLine.attr("x1", mouseX - margin.left)
+          .attr("x2", mouseX - margin.left)
+          .attr("display", "inline");
+
+        g.selectAll(".area").remove();
+        if (tail === "below") {
+          g.append("path")
+            .datum(data.filter(d => d.x <= mouseZ))
+            .attr("class", "area")
+            .attr("d", area);
+        } else {
+          g.append("path")
+            .datum(data.filter(d => d.x >= mouseZ))
+            .attr("class", "area")
+            .attr("d", area);
+        }
+
+        tooltip.transition().duration(200).style("opacity", 0.9);
+        tooltip.html(`Z: ${mouseZ.toFixed(2)}<br>p: ${pValue.toFixed(4)}`)
+          .style("left", `${event.pageX + 20}px`)
+          .style("top", `${event.pageY - 28}px`);
+      });
+
+      svg.on("mouseleave", () => {
+        tooltip.transition().duration(500).style("opacity", 0);
+        verticalLine.attr("display", "none");
+      });
+    };
+
+    updateDistribution();
+
+    d3.selectAll('input[name="tail"]').on("change", updateDistribution);
+
+  </script>
+</body>
+</html>
