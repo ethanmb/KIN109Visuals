@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mode Practice Question</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        p, input, button {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+    </style>
+    <script>
+        let correctAnswer;
+
+        function generateQuestion() {
+            // Array to hold the numbers
+            let numbers = [];
+
+            // Pick one number that will be repeated at least twice
+            let repeatingNumber = Math.floor(Math.random() * 21);
+
+            // Push the repeating number twice into the array
+            numbers.push(repeatingNumber, repeatingNumber);
+
+            // Fill the remaining 3 spots with random numbers (they could repeat randomly)
+            for (let i = 0; i < 3; i++) {
+                numbers.push(Math.floor(Math.random() * 21));
+            }
+
+            // Shuffle the numbers array to randomize their order
+            numbers.sort(() => Math.random() - 0.5);
+
+            // Calculate the mode(s)
+            let frequencyMap = {};
+            numbers.forEach(num => {
+                if (frequencyMap[num]) {
+                    frequencyMap[num]++;
+                } else {
+                    frequencyMap[num] = 1;
+                }
+            });
+
+            // Find the maximum frequency
+            let maxFrequency = Math.max(...Object.values(frequencyMap));
+
+            // Find the mode(s)
+            let modes = Object.keys(frequencyMap).filter(key => frequencyMap[key] === maxFrequency);
+            correctAnswer = modes.map(Number).join(", ");  // Convert to numbers and join if multiple modes
+
+            // Display the question
+            document.getElementById("question").innerText = 
+                "Calculate the mode(s) of the following numbers: " + numbers.join(", ");
+            
+            // Clear previous answer and result
+            document.getElementById("studentAnswer").value = '';
+            document.getElementById("result").innerText = '';
+        }
+
+        function checkAnswer() {
+            let studentAnswer = document.getElementById("studentAnswer").value.trim();
+            let result = document.getElementById("result");
+
+            if (studentAnswer === correctAnswer) {
+                result.innerText = "Correct!";
+                result.style.color = "green";
+            } else {
+                result.innerText = `Incorrect. The correct answer is ${correctAnswer}.`;
+                result.style.color = "red";
+            }
+        }
+    </script>
+</head>
+<body onload="generateQuestion()">
+    <p id="question"></p>
+    <input type="text" id="studentAnswer" placeholder="Your answer">
+    <button onclick="checkAnswer()">Submit Answer</button>
+    <p id="result"></p>
+    <button onclick="generateQuestion()">Generate New Question</button>
+</body>
+</html>
