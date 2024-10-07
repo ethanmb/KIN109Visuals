@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One-Sample T-Test Practice Problem</title>
+    <title>One-Sample Two Tail T-Test Practice Problem</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .result { margin-top: 10px; color: green; }
-        .error { color: red; }
+        .error { color: red; } /* Style for incorrect results */
         .drop-area { border: 1px dashed #ccc; padding: 10px; margin: 5px; text-align: center; }
         .draggable { display: inline-block; margin: 5px; padding: 5px; background: #f0f0f0; cursor: grab; }
     </style>
@@ -138,8 +138,10 @@
 
             if (h0Symbol === "=" && h1Symbol === "≠" && populationMeanInput === problemData.populationMean.toString() && populationMeanInputH1 === problemData.populationMean.toString()) {
                 document.getElementById("resultStep1").innerHTML = "Step 1 is correct!";
+                document.getElementById("resultStep1").classList.remove("error");
             } else {
                 document.getElementById("resultStep1").innerHTML = "Step 1 is incorrect. Ensure you have the correct hypotheses format.";
+                document.getElementById("resultStep1").classList.add("error");
             }
         }
 
@@ -152,8 +154,10 @@
 
             if (criticalValueNegativeInput === correctNegativeCriticalValue && criticalValuePositiveInput === correctPositiveCriticalValue) {
                 document.getElementById("resultStep2").innerHTML = "Step 2 is correct!";
+                document.getElementById("resultStep2").classList.remove("error");
             } else {
                 document.getElementById("resultStep2").innerHTML = `Step 2 is incorrect. Ensure you are using the correct critical values: Negative Critical Value: ${correctNegativeCriticalValue}, Positive Critical Value: ${correctPositiveCriticalValue}.`;
+                document.getElementById("resultStep2").classList.add("error");
             }
         }
 
@@ -162,8 +166,10 @@
 
             if (!isNaN(calculatedTInput) && calculatedTInput.toFixed(2) === problemData.calculatedT.toFixed(2)) {
                 document.getElementById("resultStep3").innerHTML = "Step 3 is correct!";
+                document.getElementById("resultStep3").classList.remove("error");
             } else {
                 document.getElementById("resultStep3").innerHTML = `Step 3 is incorrect. The correct t-value is ${problemData.calculatedT.toFixed(2)}. Please enter the correct t value.`;
+                document.getElementById("resultStep3").classList.add("error");
             }
         }
 
@@ -176,10 +182,13 @@
 
             if (decisionInput === 'reject' && shouldReject) {
                 document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} compared to critical value: reject the null (p < ${problemData.alpha}).`;
+                document.getElementById("resultStep4").classList.remove("error");
             } else if (decisionInput === 'not reject' && !shouldReject) {
                 document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} lies within the critical values: do not reject (p > ${problemData.alpha}).`;
+                document.getElementById("resultStep4").classList.remove("error");
             } else {
                 document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Ensure your decision is based on the correct t-value and critical value format.`;
+                document.getElementById("resultStep4").classList.add("error");
             }
         }
 

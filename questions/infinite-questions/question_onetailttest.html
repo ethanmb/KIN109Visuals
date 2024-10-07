@@ -7,7 +7,7 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .result { margin-top: 10px; color: green; }
-        .error { color: red; }
+        .error { color: red; } /* Added error class for red text */
         .drop-area { border: 1px dashed #ccc; padding: 10px; margin: 5px; text-align: center; }
         .draggable { display: inline-block; margin: 5px; padding: 5px; background: #f0f0f0; cursor: grab; }
     </style>
@@ -143,8 +143,10 @@
                 populationMeanInput === problemData.populationMean.toString() &&
                 populationMeanInputH1 === problemData.populationMean.toString()) {
                 document.getElementById("resultStep1").innerHTML = "Step 1 is correct!";
+                document.getElementById("resultStep1").classList.remove("error");
             } else {
                 document.getElementById("resultStep1").innerHTML = "Step 1 is incorrect. Ensure you have the correct hypotheses format.";
+                document.getElementById("resultStep1").classList.add("error");
             }
         }
 
@@ -157,8 +159,10 @@
 
             if (criticalValueInput === correctCriticalValue && comparisonSymbol === correctComparisonSymbol) {
                 document.getElementById("resultStep2").innerHTML = "Step 2 is correct!";
+                document.getElementById("resultStep2").classList.remove("error");
             } else {
                 document.getElementById("resultStep2").innerHTML = `Step 2 is incorrect. The correct decision rule should be: If t ${correctComparisonSymbol} ${correctCriticalValue}.`;
+                document.getElementById("resultStep2").classList.add("error");
             }
         }
 
@@ -167,8 +171,10 @@
 
             if (!isNaN(calculatedTInput) && calculatedTInput.toFixed(2) === problemData.calculatedT.toFixed(2)) {
                 document.getElementById("resultStep3").innerHTML = "Step 3 is correct!";
+                document.getElementById("resultStep3").classList.remove("error");
             } else {
                 document.getElementById("resultStep3").innerHTML = `Step 3 is incorrect. The correct t-value is ${problemData.calculatedT.toFixed(2)}.`;
+                document.getElementById("resultStep3").classList.add("error");
             }
         }
 
@@ -187,8 +193,10 @@
 
             if (decisionInput === correctDecision) {
                 document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} compared to critical value ${criticalValue.toFixed(3)}: ${correctDecision} H₀.`;
+                document.getElementById("resultStep4").classList.remove("error");
             } else {
                 document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Based on t = ${calculatedT.toFixed(2)} and the critical value of ${criticalValue.toFixed(3)}, you should ${correctDecision} H₀.`;
+                document.getElementById("resultStep4").classList.add("error");
             }
         }
 
