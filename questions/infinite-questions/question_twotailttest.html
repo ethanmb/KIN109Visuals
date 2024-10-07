@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Sample T-Test Practice Problem</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin-top: 10px; color: green; }
+        .error { color: red; }
+        .drop-area { border: 1px dashed #ccc; padding: 10px; margin: 5px; text-align: center; }
+        .draggable { display: inline-block; margin: 5px; padding: 5px; background: #f0f0f0; cursor: grab; }
+    </style>
+</head>
+<body>
+    <h1>One-Sample T-Test Practice Problem</h1>
+    <div id="problem"></div>
+
+    <!-- Step 1 -->
+    <h2>Step 1: Write the Hypotheses</h2>
+    <div>
+        <p>H₀: μ <span id="h0SymbolDropArea" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> <input type="text" id="populationMeanInput" placeholder="Enter population mean here"></p>
+        <p>H₁: μ <span id="h1SymbolDropArea" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> <input type="text" id="populationMeanInputH1" placeholder="Enter population mean here"></p>
+        <p>Drag and drop symbols: 
+            <span id="equals" class="draggable" draggable="true" ondragstart="drag(event)">=</span>, 
+            <span id="notEqual" class="draggable" draggable="true" ondragstart="drag(event)">≠</span>
+        </p>
+    </div>
+    <button onclick="checkHypotheses()">Check Hypotheses</button>
+    <div id="resultStep1" class="result"></div>
+
+    <!-- Step 2 -->
+    <h2>Step 2: Determine Critical Value and Decision Rule</h2>
+    <div>
+        <p>Decision Rule: If t is &lt <input type="text" id="criticalValueNegativeInput" placeholder="Enter negative critical value here"> or &gt <input type="text" id="criticalValuePositiveInput" placeholder="Enter positive critical value here">, reject H₀, otherwise do not reject.</p>
+    </div>
+    <button onclick="checkCriticalValue()">Check Critical Value</button>
+    <div id="resultStep2" class="result"></div>
+
+    <!-- Step 3 -->
+    <h2>Step 3: Calculate t</h2>
+    <div>
+        <p>Calculated t-value: <input type="text" id="calculatedT" placeholder="Enter your calculated t value here"></p>
+    </div>
+    <button onclick="checkStep3()">Check Calculation</button>
+    <div id="resultStep3" class="result"></div>
+
+    <!-- Step 4 -->
+    <h2>Step 4: Make a Decision</h2>
+    <div>
+        <p>Decision: <input type="text" id="decision" placeholder="Enter 'reject' or 'not reject'"></p>
+    </div>
+    <button onclick="checkDecision()">Check Decision</button>
+    <div id="resultStep4" class="result"></div>
+
+    <button onclick="generateProblem()">Generate New Problem</button>
+
+    <script>
+        let problemData = {};
+
+        // Function to calculate the critical t-value based on the sample size and alpha level
+        function calculateCriticalT(alpha, df) {
+            const tTable = {
+                1: { 0.01: 63.657, 0.05: 12.706 },
+                2: { 0.01: 9.925, 0.05: 4.303 },
+                3: { 0.01: 5.841, 0.05: 3.182 },
+                4: { 0.01: 4.604, 0.05: 2.776 },
+                5: { 0.01: 4.032, 0.05: 2.571 },
+                6: { 0.01: 3.707, 0.05: 2.447 },
+                7: { 0.01: 3.499, 0.05: 2.365 },
+                8: { 0.01: 3.355, 0.05: 2.306 },
+                9: { 0.01: 3.250, 0.05: 2.262 },
+                10: { 0.01: 3.169, 0.05: 2.228 },
+                11: { 0.01: 3.106, 0.05: 2.201 },
+                12: { 0.01: 3.055, 0.05: 2.179 },
+                13: { 0.01: 3.012, 0.05: 2.160 },
+                14: { 0.01: 2.977, 0.05: 2.145 },
+                15: { 0.01: 2.947, 0.05: 2.131 },
+                16: { 0.01: 2.921, 0.05: 2.120 },
+                17: { 0.01: 2.898, 0.05: 2.110 },
+                18: { 0.01: 2.878, 0.05: 2.101 },
+                19: { 0.01: 2.861, 0.05: 2.093 },
+                20: { 0.01: 2.845, 0.05: 2.086 },
+                21: { 0.01: 2.831, 0.05: 2.080 },
+                22: { 0.01: 2.819, 0.05: 2.074 },
+                23: { 0.01: 2.807, 0.05: 2.069 },
+                24: { 0.01: 2.797, 0.05: 2.064 },
+                25: { 0.01: 2.787, 0.05: 2.060 },
+                26: { 0.01: 2.779, 0.05: 2.056 },
+                27: { 0.01: 2.771, 0.05: 2.052 },
+                28: { 0.01: 2.763, 0.05: 2.048 },
+                29: { 0.01: 2.756, 0.05: 2.045 },
+                30: { 0.01: 2.750, 0.05: 2.042 }
+            };
+
+            return tTable[df] ? tTable[df][alpha] : null;
+        }
+
+        function calculateT(sampleMean, populationMean, sampleStandardDeviation, sampleSize) {
+            return (sampleMean - populationMean) / (sampleStandardDeviation / Math.sqrt(sampleSize));
+        }
+
+        function generateProblem() {
+            const populationMean = Math.floor(Math.random() * 20 + 60);
+            const sampleSize = Math.floor(Math.random() * 10 + 5);
+            const sampleMean = Math.floor(Math.random() * 20 + populationMean - 10);
+            const sampleStandardDeviation = Math.floor(Math.random() * 5 + 5);
+            const alpha = 0.05;
+            const degreesOfFreedom = sampleSize - 1;
+            const criticalValue = calculateCriticalT(alpha, degreesOfFreedom);
+            const calculatedT = calculateT(sampleMean, populationMean, sampleStandardDeviation, sampleSize);
+
+            problemData = {
+                populationMean: populationMean,
+                sampleSize: sampleSize,
+                sampleMean: sampleMean,
+                sampleStandardDeviation: sampleStandardDeviation,
+                alpha: alpha,
+                degreesOfFreedom: degreesOfFreedom,
+                criticalValue: criticalValue,
+                calculatedT: calculatedT
+            };
+
+            document.getElementById("problem").innerHTML = 
+                `Given a sample size of n = ${sampleSize}, M = ${sampleMean}, and s =  ${sampleStandardDeviation}, test whether the mean differs from μ = ${populationMean} at an alpha level of ${alpha}.`;
+
+            document.getElementById("resultStep1").innerHTML = "";
+            document.getElementById("resultStep2").innerHTML = "";
+            document.getElementById("resultStep3").innerHTML = "";
+            document.getElementById("resultStep4").innerHTML = "";
+        }
+
+        function checkHypotheses() {
+            const h0Symbol = document.getElementById("h0SymbolDropArea").innerText.trim();
+            const h1Symbol = document.getElementById("h1SymbolDropArea").innerText.trim();
+            const populationMeanInput = document.getElementById("populationMeanInput").value.trim();
+            const populationMeanInputH1 = document.getElementById("populationMeanInputH1").value.trim();
+
+            if (h0Symbol === "=" && h1Symbol === "≠" && populationMeanInput === problemData.populationMean.toString() && populationMeanInputH1 === problemData.populationMean.toString()) {
+                document.getElementById("resultStep1").innerHTML = "Step 1 is correct!";
+            } else {
+                document.getElementById("resultStep1").innerHTML = "Step 1 is incorrect. Ensure you have the correct hypotheses format.";
+            }
+        }
+
+        function checkCriticalValue() {
+            const criticalValueNegativeInput = document.getElementById("criticalValueNegativeInput").value.trim();
+            const criticalValuePositiveInput = document.getElementById("criticalValuePositiveInput").value.trim();
+
+            const correctNegativeCriticalValue = (-problemData.criticalValue).toFixed(3);
+            const correctPositiveCriticalValue = problemData.criticalValue.toFixed(3);
+
+            if (criticalValueNegativeInput === correctNegativeCriticalValue && criticalValuePositiveInput === correctPositiveCriticalValue) {
+                document.getElementById("resultStep2").innerHTML = "Step 2 is correct!";
+            } else {
+                document.getElementById("resultStep2").innerHTML = `Step 2 is incorrect. Ensure you are using the correct critical values: Negative Critical Value: ${correctNegativeCriticalValue}, Positive Critical Value: ${correctPositiveCriticalValue}.`;
+            }
+        }
+
+        function checkStep3() {
+            const calculatedTInput = parseFloat(document.getElementById("calculatedT").value.trim());
+
+            if (!isNaN(calculatedTInput) && calculatedTInput.toFixed(2) === problemData.calculatedT.toFixed(2)) {
+                document.getElementById("resultStep3").innerHTML = "Step 3 is correct!";
+            } else {
+                document.getElementById("resultStep3").innerHTML = `Step 3 is incorrect. The correct t-value is ${problemData.calculatedT.toFixed(2)}. Please enter the correct t value.`;
+            }
+        }
+
+        function checkDecision() {
+            const decisionInput = document.getElementById("decision").value.trim().toLowerCase();
+            const calculatedT = parseFloat(document.getElementById("calculatedT").value.trim());
+            const criticalValue = problemData.criticalValue;
+
+            const shouldReject = (calculatedT < -criticalValue || calculatedT > criticalValue);
+
+            if (decisionInput === 'reject' && shouldReject) {
+                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} compared to critical value: reject the null (p < ${problemData.alpha}).`;
+            } else if (decisionInput === 'not reject' && !shouldReject) {
+                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} lies within the critical values: do not reject (p > ${problemData.alpha}).`;
+            } else {
+                document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Ensure your decision is based on the correct t-value and critical value format.`;
+            }
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.innerHTML);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            ev.target.innerHTML = data;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            generateProblem();
+            const dropAreas = [document.getElementById("h0SymbolDropArea"), document.getElementById("h1SymbolDropArea")];
+            dropAreas.forEach(area => {
+                area.addEventListener("dragover", allowDrop);
+                area.addEventListener("drop", drop);
+            });
+        });
+    </script>
+</body>
+</html>

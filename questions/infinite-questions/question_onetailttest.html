@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Tailed One-Sample T-Test Practice Problem</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin-top: 10px; color: green; }
+        .error { color: red; }
+        .drop-area { border: 1px dashed #ccc; padding: 10px; margin: 5px; text-align: center; }
+        .draggable { display: inline-block; margin: 5px; padding: 5px; background: #f0f0f0; cursor: grab; }
+    </style>
+</head>
+<body>
+    <h1>One-Tailed One-Sample T-Test Practice Problem</h1>
+    <div id="problem"></div>
+
+    <!-- Step 1 -->
+    <h2>Step 1: Write the Hypotheses</h2>
+    <div>
+        <p>H₀: μ <span id="h0SymbolDropArea" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> <input type="text" id="populationMeanInput" placeholder="Enter population mean here"></p>
+        <p>H₁: μ <span id="h1SymbolDropArea" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> <input type="text" id="populationMeanInputH1" placeholder="Enter population mean here"></p>
+        <p>Drag and drop symbols: 
+            <span id="greaterThanOrEqual" class="draggable" draggable="true" ondragstart="drag(event)">≥</span>, 
+            <span id="lessThanOrEqual" class="draggable" draggable="true" ondragstart="drag(event)">≤</span>, 
+            <span id="greaterThan" class="draggable" draggable="true" ondragstart="drag(event)">></span>, 
+            <span id="lessThan" class="draggable" draggable="true" ondragstart="drag(event)"><</span>
+        </p>
+    </div>
+    <button onclick="checkHypotheses()">Check Hypotheses</button>
+    <div id="resultStep1" class="result"></div>
+
+    <!-- Step 2 -->
+    <h2>Step 2: Determine Critical Value and Decision Rule</h2>
+    <div>
+        <p>Decision Rule: If t <input type="text" id="comparisonSymbolInput" placeholder="Enter '>' or '<'"> <input type="text" id="criticalValueInput" placeholder="Enter critical value here">, reject H₀, otherwise do not reject.</p>
+    </div>
+    <button onclick="checkCriticalValue()">Check Critical Value</button>
+    <div id="resultStep2" class="result"></div>
+
+    <!-- Step 3 -->
+    <h2>Step 3: Calculate t</h2>
+    <div>
+        <p>Calculated t-value: <input type="text" id="calculatedT" placeholder="Enter your calculated t value here"></p>
+    </div>
+    <button onclick="checkStep3()">Check Calculation</button>
+    <div id="resultStep3" class="result"></div>
+
+    <!-- Step 4 -->
+    <h2>Step 4: Make a Decision</h2>
+    <div>
+        <p>Decision: <input type="text" id="decision" placeholder="Enter 'reject' or 'not reject'"></p>
+    </div>
+    <button onclick="checkDecision()">Check Decision</button>
+    <div id="resultStep4" class="result"></div>
+
+    <button onclick="generateProblem()">Generate New Problem</button>
+
+    <script>
+        let problemData = {};
+        let oneTailedTestType = ""; // Will hold whether it's a left-tailed or right-tailed test
+
+        function calculateCriticalT(alpha, df, oneTailed = true) {
+            const tTable = {
+                1: { 0.025: 12.706, 0.05: 6.314 },
+                2: { 0.025: 4.303, 0.05: 2.920 },
+                3: { 0.025: 3.182, 0.05: 2.353 },
+                4: { 0.025: 2.776, 0.05: 2.132 },
+                5: { 0.025: 2.571, 0.05: 2.015 },
+                6: { 0.025: 2.447, 0.05: 1.943 },
+                7: { 0.025: 2.365, 0.05: 1.895 },
+                8: { 0.025: 2.306, 0.05: 1.860 },
+                9: { 0.025: 2.262, 0.05: 1.833 },
+                10: { 0.025: 2.228, 0.05: 1.812 },
+                11: { 0.025: 2.201, 0.05: 1.796 },
+                12: { 0.025: 2.179, 0.05: 1.782 },
+                13: { 0.025: 2.160, 0.05: 1.771 },
+                14: { 0.025: 2.145, 0.05: 1.761 },
+                15: { 0.025: 2.131, 0.05: 1.753 }
+            };
+
+            return tTable[df] ? tTable[df][alpha] : null;
+        }
+
+        function calculateT(sampleMean, populationMean, sampleStandardDeviation, sampleSize) {
+            return (sampleMean - populationMean) / (sampleStandardDeviation / Math.sqrt(sampleSize));
+        }
+
+        function generateProblem() {
+            const populationMean = Math.floor(Math.random() * 20 + 60);
+            const sampleSize = Math.floor(Math.random() * 10 + 5);
+            const sampleMean = Math.floor(Math.random() * 20 + populationMean - 10);
+            const sampleStandardDeviation = Math.floor(Math.random() * 5 + 5);
+            const alpha = 0.05;
+            const degreesOfFreedom = sampleSize - 1;
+            const criticalValue = calculateCriticalT(alpha, degreesOfFreedom);
+            const calculatedT = calculateT(sampleMean, populationMean, sampleStandardDeviation, sampleSize);
+
+            const testTypes = ["left-tailed", "right-tailed"];
+            oneTailedTestType = testTypes[Math.floor(Math.random() * testTypes.length)];
+
+            problemData = {
+                populationMean: populationMean,
+                sampleSize: sampleSize,
+                sampleMean: sampleMean,
+                sampleStandardDeviation: sampleStandardDeviation,
+                alpha: alpha,
+                degreesOfFreedom: degreesOfFreedom,
+                criticalValue: criticalValue,
+                calculatedT: calculatedT
+            };
+
+            let testDirection = "";
+            if (oneTailedTestType === "left-tailed") {
+                testDirection = `test whether the mean is less than ${populationMean}`;
+            } else {
+                testDirection = `test whether the mean is greater than ${populationMean}`;
+            }
+
+            document.getElementById("problem").innerHTML = 
+                `Given a sample size of ${sampleSize}, sample mean of ${sampleMean}, and sample standard deviation of ${sampleStandardDeviation}, ${testDirection} at an alpha level of ${alpha}.`;
+        }
+
+        function checkHypotheses() {
+            const h0Symbol = document.getElementById("h0SymbolDropArea").innerHTML.trim();
+            const h1Symbol = document.getElementById("h1SymbolDropArea").innerHTML.trim();
+            const populationMeanInput = document.getElementById("populationMeanInput").value.trim();
+            const populationMeanInputH1 = document.getElementById("populationMeanInputH1").value.trim();
+
+            let correctH0 = "";
+            let correctH1 = "";
+
+            if (oneTailedTestType === "left-tailed") {
+                correctH0 = `≥`;
+                correctH1 = `<`;
+            } else {
+                correctH0 = `≤`;
+                correctH1 = `>`;
+            }
+
+            if (h0Symbol === correctH0 && h1Symbol === correctH1 &&
+                populationMeanInput === problemData.populationMean.toString() &&
+                populationMeanInputH1 === problemData.populationMean.toString()) {
+                document.getElementById("resultStep1").innerHTML = "Step 1 is correct!";
+            } else {
+                document.getElementById("resultStep1").innerHTML = "Step 1 is incorrect. Ensure you have the correct hypotheses format.";
+            }
+        }
+
+        function checkCriticalValue() {
+            const comparisonSymbol = document.getElementById("comparisonSymbolInput").value.trim();
+            const criticalValueInput = document.getElementById("criticalValueInput").value.trim();
+            const correctCriticalValue = problemData.criticalValue.toFixed(3);
+
+            let correctComparisonSymbol = oneTailedTestType === "left-tailed" ? "<" : ">";
+
+            if (criticalValueInput === correctCriticalValue && comparisonSymbol === correctComparisonSymbol) {
+                document.getElementById("resultStep2").innerHTML = "Step 2 is correct!";
+            } else {
+                document.getElementById("resultStep2").innerHTML = `Step 2 is incorrect. The correct decision rule should be: If t ${correctComparisonSymbol} ${correctCriticalValue}.`;
+            }
+        }
+
+        function checkStep3() {
+            const calculatedTInput = parseFloat(document.getElementById("calculatedT").value.trim());
+
+            if (!isNaN(calculatedTInput) && calculatedTInput.toFixed(2) === problemData.calculatedT.toFixed(2)) {
+                document.getElementById("resultStep3").innerHTML = "Step 3 is correct!";
+            } else {
+                document.getElementById("resultStep3").innerHTML = `Step 3 is incorrect. The correct t-value is ${problemData.calculatedT.toFixed(2)}.`;
+            }
+        }
+
+        function checkDecision() {
+            const decisionInput = document.getElementById("decision").value.trim().toLowerCase();
+            const calculatedT = parseFloat(document.getElementById("calculatedT").value.trim());
+            const criticalValue = problemData.criticalValue;
+
+            const shouldReject = (oneTailedTestType === "right-tailed" && calculatedT > criticalValue && decisionInput === 'reject') ||
+                                (oneTailedTestType === "left-tailed" && calculatedT < -criticalValue && decisionInput === 'reject');
+
+            if (shouldReject) {
+                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} compared to critical value ${criticalValue.toFixed(3)}: reject H₀.`;
+            } else {
+                document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Ensure your decision is based on the correct t-value and critical value.`;
+            }
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.innerHTML);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            ev.target.innerHTML = data;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            generateProblem();
+            const dropAreas = [document.getElementById("h0SymbolDropArea"), document.getElementById("h1SymbolDropArea")];
+            dropAreas.forEach(area => {
+                area.addEventListener("dragover", allowDrop);
+                area.addEventListener("drop", drop);
+            });
+        });
+    </script>
+</body>
+</html>
