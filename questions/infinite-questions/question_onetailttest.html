@@ -123,8 +123,8 @@
         }
 
         function checkHypotheses() {
-            const h0Symbol = document.getElementById("h0SymbolDropArea").innerHTML.trim();
-            const h1Symbol = document.getElementById("h1SymbolDropArea").innerHTML.trim();
+            const h0Symbol = document.getElementById("h0SymbolDropArea").textContent.trim();
+            const h1Symbol = document.getElementById("h1SymbolDropArea").textContent.trim();
             const populationMeanInput = document.getElementById("populationMeanInput").value.trim();
             const populationMeanInputH1 = document.getElementById("populationMeanInputH1").value.trim();
 
@@ -177,13 +177,18 @@
             const calculatedT = parseFloat(document.getElementById("calculatedT").value.trim());
             const criticalValue = problemData.criticalValue;
 
-            const shouldReject = (oneTailedTestType === "right-tailed" && calculatedT > criticalValue && decisionInput === 'reject') ||
-                                (oneTailedTestType === "left-tailed" && calculatedT < -criticalValue && decisionInput === 'reject');
+            let correctDecision = "";
 
-            if (shouldReject) {
-                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} compared to critical value ${criticalValue.toFixed(3)}: reject H₀.`;
+            if (oneTailedTestType === "right-tailed") {
+                correctDecision = calculatedT > criticalValue ? "reject" : "not reject";
+            } else if (oneTailedTestType === "left-tailed") {
+                correctDecision = calculatedT < -criticalValue ? "reject" : "not reject";
+            }
+
+            if (decisionInput === correctDecision) {
+                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} compared to critical value ${criticalValue.toFixed(3)}: ${correctDecision} H₀.`;
             } else {
-                document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Ensure your decision is based on the correct t-value and critical value.`;
+                document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Based on t = ${calculatedT.toFixed(2)} and the critical value of ${criticalValue.toFixed(3)}, you should ${correctDecision} H₀.`;
             }
         }
 
