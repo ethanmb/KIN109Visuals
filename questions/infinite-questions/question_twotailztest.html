@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One-Sample Two-Tailed T-Test Practice Problem</title>
+    <title>One-Sample Two-Tailed Z-Test Practice Problem</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .result { margin-top: 10px; color: green; }
-        .error { color: red; } /* Style for incorrect results */
+        .error { color: red; }
         .drop-area { border: 1px dashed #ccc; padding: 10px; margin: 5px; text-align: center; }
         .draggable { display: inline-block; margin: 5px; padding: 5px; background: #f0f0f0; cursor: grab; }
     </style>
 </head>
 <body>
-    <h1>One-Sample Two-Tailed T-Test Practice Problem</h1>
+    <h1>One-Sample Two-Tailed Z-Test Practice Problem</h1>
     <div id="problem"></div>
 
     <!-- Step 1 -->
@@ -32,15 +32,15 @@
     <!-- Step 2 -->
     <h2>Step 2: Determine Critical Value and Decision Rule</h2>
     <div>
-        <p>Decision Rule: If t is &lt <input type="text" id="criticalValueNegativeInput" placeholder="Enter negative critical value here"> or &gt <input type="text" id="criticalValuePositiveInput" placeholder="Enter positive critical value here">, reject H₀, otherwise do not reject.</p>
+        <p>Decision Rule: If z is &lt <input type="text" id="criticalValueNegativeInput" placeholder="Enter negative critical value here"> or &gt <input type="text" id="criticalValuePositiveInput" placeholder="Enter positive critical value here">, reject H₀, otherwise do not reject.</p>
     </div>
     <button onclick="checkCriticalValue()">Check Critical Value</button>
     <div id="resultStep2" class="result"></div>
 
     <!-- Step 3 -->
-    <h2>Step 3: Calculate t</h2>
+    <h2>Step 3: Calculate z</h2>
     <div>
-        <p>Calculated t-value: <input type="text" id="calculatedT" placeholder="Enter your calculated t value here"></p>
+        <p>Calculated z-value: <input type="text" id="calculatedZ" placeholder="Enter your calculated z value here"></p>
     </div>
     <button onclick="checkStep3()">Check Calculation</button>
     <div id="resultStep3" class="result"></div>
@@ -58,76 +58,36 @@
     <script>
         let problemData = {};
 
-        // Function to calculate the critical t-value based on the sample size and alpha level
-        function calculateCriticalT(alpha, df) {
-            const tTable = {
-                1: { 0.01: 63.657, 0.05: 12.706 },
-                2: { 0.01: 9.925, 0.05: 4.303 },
-                3: { 0.01: 5.841, 0.05: 3.182 },
-                4: { 0.01: 4.604, 0.05: 2.776 },
-                5: { 0.01: 4.032, 0.05: 2.571 },
-                6: { 0.01: 3.707, 0.05: 2.447 },
-                7: { 0.01: 3.499, 0.05: 2.365 },
-                8: { 0.01: 3.355, 0.05: 2.306 },
-                9: { 0.01: 3.250, 0.05: 2.262 },
-                10: { 0.01: 3.169, 0.05: 2.228 },
-                11: { 0.01: 3.106, 0.05: 2.201 },
-                12: { 0.01: 3.055, 0.05: 2.179 },
-                13: { 0.01: 3.012, 0.05: 2.160 },
-                14: { 0.01: 2.977, 0.05: 2.145 },
-                15: { 0.01: 2.947, 0.05: 2.131 },
-                16: { 0.01: 2.921, 0.05: 2.120 },
-                17: { 0.01: 2.898, 0.05: 2.110 },
-                18: { 0.01: 2.878, 0.05: 2.101 },
-                19: { 0.01: 2.861, 0.05: 2.093 },
-                20: { 0.01: 2.845, 0.05: 2.086 },
-                21: { 0.01: 2.831, 0.05: 2.080 },
-                22: { 0.01: 2.819, 0.05: 2.074 },
-                23: { 0.01: 2.807, 0.05: 2.069 },
-                24: { 0.01: 2.797, 0.05: 2.064 },
-                25: { 0.01: 2.787, 0.05: 2.060 },
-                26: { 0.01: 2.779, 0.05: 2.056 },
-                27: { 0.01: 2.771, 0.05: 2.052 },
-                28: { 0.01: 2.763, 0.05: 2.048 },
-                29: { 0.01: 2.756, 0.05: 2.045 },
-                30: { 0.01: 2.750, 0.05: 2.042 }
-            };
-
-            return tTable[df] ? tTable[df][alpha] : null;
-        }
-
-        function calculateT(sampleMean, populationMean, sampleStandardDeviation, sampleSize) {
-            return (sampleMean - populationMean) / (sampleStandardDeviation / Math.sqrt(sampleSize));
-        }
-
         function generateProblem() {
             const populationMean = Math.floor(Math.random() * 20 + 60);
-            const sampleSize = Math.floor(Math.random() * 10 + 5);
+            const sampleSize = Math.floor(Math.random() * 30 + 20);
             const sampleMean = Math.floor(Math.random() * 20 + populationMean - 10);
-            const sampleStandardDeviation = Math.floor(Math.random() * 5 + 5);
+            const populationStdDev = Math.floor(Math.random() * 5 + 5);
             const alpha = 0.05;
-            const degreesOfFreedom = sampleSize - 1;
-            const criticalValue = calculateCriticalT(alpha, degreesOfFreedom);
-            const calculatedT = calculateT(sampleMean, populationMean, sampleStandardDeviation, sampleSize);
+            const criticalValue = 1.96; // Standard Z critical value for two-tailed test at alpha = 0.05
+            const calculatedZ = calculateZ(sampleMean, populationMean, populationStdDev, sampleSize);
 
             problemData = {
                 populationMean: populationMean,
                 sampleSize: sampleSize,
                 sampleMean: sampleMean,
-                sampleStandardDeviation: sampleStandardDeviation,
+                populationStdDev: populationStdDev,
                 alpha: alpha,
-                degreesOfFreedom: degreesOfFreedom,
                 criticalValue: criticalValue,
-                calculatedT: calculatedT
+                calculatedZ: calculatedZ
             };
 
             document.getElementById("problem").innerHTML = 
-                `Given a sample size of n = ${sampleSize}, M = ${sampleMean}, and s =  ${sampleStandardDeviation}, test whether the mean differs from μ = ${populationMean} at an alpha level of ${alpha}.`;
+                `Given a sample size of n = ${sampleSize}, M = ${sampleMean}, and σ = ${populationStdDev}, test whether the mean differs from μ = ${populationMean} at an alpha level of ${alpha}.`;
 
             document.getElementById("resultStep1").innerHTML = "";
             document.getElementById("resultStep2").innerHTML = "";
             document.getElementById("resultStep3").innerHTML = "";
             document.getElementById("resultStep4").innerHTML = "";
+        }
+
+        function calculateZ(sampleMean, populationMean, populationStdDev, sampleSize) {
+            return (sampleMean - populationMean) / (populationStdDev / Math.sqrt(sampleSize));
         }
 
         function checkHypotheses() {
@@ -149,8 +109,8 @@
             const criticalValueNegativeInput = document.getElementById("criticalValueNegativeInput").value.trim();
             const criticalValuePositiveInput = document.getElementById("criticalValuePositiveInput").value.trim();
 
-            const correctNegativeCriticalValue = (-problemData.criticalValue).toFixed(3);
-            const correctPositiveCriticalValue = problemData.criticalValue.toFixed(3);
+            const correctNegativeCriticalValue = (-problemData.criticalValue).toFixed(2);
+            const correctPositiveCriticalValue = problemData.criticalValue.toFixed(2);
 
             if (criticalValueNegativeInput === correctNegativeCriticalValue && criticalValuePositiveInput === correctPositiveCriticalValue) {
                 document.getElementById("resultStep2").innerHTML = "Step 2 is correct!";
@@ -162,32 +122,32 @@
         }
 
         function checkStep3() {
-            const calculatedTInput = parseFloat(document.getElementById("calculatedT").value.trim());
+            const calculatedZInput = parseFloat(document.getElementById("calculatedZ").value.trim());
 
-            if (!isNaN(calculatedTInput) && calculatedTInput.toFixed(2) === problemData.calculatedT.toFixed(2)) {
+            if (!isNaN(calculatedZInput) && calculatedZInput.toFixed(2) === problemData.calculatedZ.toFixed(2)) {
                 document.getElementById("resultStep3").innerHTML = "Step 3 is correct!";
                 document.getElementById("resultStep3").classList.remove("error");
             } else {
-                document.getElementById("resultStep3").innerHTML = `Step 3 is incorrect. The correct t-value is ${problemData.calculatedT.toFixed(2)}. Please enter the correct t value.`;
+                document.getElementById("resultStep3").innerHTML = `Step 3 is incorrect. The correct z-value is ${problemData.calculatedZ.toFixed(2)}. Please enter the correct z value.`;
                 document.getElementById("resultStep3").classList.add("error");
             }
         }
 
         function checkDecision() {
             const decisionInput = document.getElementById("decision").value.trim().toLowerCase();
-            const calculatedT = parseFloat(document.getElementById("calculatedT").value.trim());
+            const calculatedZ = parseFloat(document.getElementById("calculatedZ").value.trim());
             const criticalValue = problemData.criticalValue;
 
-            const shouldReject = (calculatedT < -criticalValue || calculatedT > criticalValue);
+            const shouldReject = (calculatedZ < -criticalValue || calculatedZ > criticalValue);
 
             if (decisionInput === 'reject' && shouldReject) {
-                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} compared to critical value: reject the null (p < ${problemData.alpha}).`;
+                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! z = ${calculatedZ.toFixed(2)} compared to critical value: reject the null (p < ${problemData.alpha}).`;
                 document.getElementById("resultStep4").classList.remove("error");
             } else if (decisionInput === 'not reject' && !shouldReject) {
-                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} lies within the critical values: do not reject (p > ${problemData.alpha}).`;
+                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! z = ${calculatedZ.toFixed(2)} lies within the critical values: do not reject (p > ${problemData.alpha}).`;
                 document.getElementById("resultStep4").classList.remove("error");
             } else {
-                document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Ensure your decision is based on the correct t-value and critical value format.`;
+                document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Ensure your decision is based on the correct z-value and critical value format.`;
                 document.getElementById("resultStep4").classList.add("error");
             }
         }

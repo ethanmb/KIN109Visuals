@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One-Sample One-Tailed T-Test Practice Problem</title>
+    <title>One-Sample One-Tailed Z-Test Practice Problem</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .result { margin-top: 10px; color: green; }
-        .error { color: red; } /* Added error class for red text */
+        .error { color: red; } 
         .drop-area { border: 1px dashed #ccc; padding: 10px; margin: 5px; text-align: center; }
         .draggable { display: inline-block; margin: 5px; padding: 5px; background: #f0f0f0; cursor: grab; }
     </style>
 </head>
 <body>
-    <h1>One-Sample One-Tailed T-Test Practice Problem</h1>
+    <h1>One-Sample One-Tailed Z-Test Practice Problem</h1>
     <div id="problem"></div>
 
     <!-- Step 1 -->
@@ -34,15 +34,15 @@
     <!-- Step 2 -->
     <h2>Step 2: Determine Critical Value and Decision Rule</h2>
     <div>
-        <p>Decision Rule: If t <input type="text" id="comparisonSymbolInput" placeholder="Enter '>' or '<'"> <input type="text" id="criticalValueInput" placeholder="Enter critical value here">, reject H₀, otherwise do not reject.</p>
+        <p>Decision Rule: If z <input type="text" id="comparisonSymbolInput" placeholder="Enter '>' or '<'"> <input type="text" id="criticalValueInput" placeholder="Enter critical value here">, reject H₀, otherwise do not reject.</p>
     </div>
     <button onclick="checkCriticalValue()">Check Critical Value</button>
     <div id="resultStep2" class="result"></div>
 
     <!-- Step 3 -->
-    <h2>Step 3: Calculate t</h2>
+    <h2>Step 3: Calculate z</h2>
     <div>
-        <p>Calculated t-value: <input type="text" id="calculatedT" placeholder="Enter your calculated t value here"></p>
+        <p>Calculated z-value: <input type="text" id="calculatedZ" placeholder="Enter your calculated z value here"></p>
     </div>
     <button onclick="checkStep3()">Check Calculation</button>
     <div id="resultStep3" class="result"></div>
@@ -59,43 +59,16 @@
 
     <script>
         let problemData = {};
-        let oneTailedTestType = ""; // Will hold whether it's a left-tailed or right-tailed test
-
-        function calculateCriticalT(alpha, df, oneTailed = true) {
-            const tTable = {
-                1: { 0.025: 12.706, 0.05: 6.314 },
-                2: { 0.025: 4.303, 0.05: 2.920 },
-                3: { 0.025: 3.182, 0.05: 2.353 },
-                4: { 0.025: 2.776, 0.05: 2.132 },
-                5: { 0.025: 2.571, 0.05: 2.015 },
-                6: { 0.025: 2.447, 0.05: 1.943 },
-                7: { 0.025: 2.365, 0.05: 1.895 },
-                8: { 0.025: 2.306, 0.05: 1.860 },
-                9: { 0.025: 2.262, 0.05: 1.833 },
-                10: { 0.025: 2.228, 0.05: 1.812 },
-                11: { 0.025: 2.201, 0.05: 1.796 },
-                12: { 0.025: 2.179, 0.05: 1.782 },
-                13: { 0.025: 2.160, 0.05: 1.771 },
-                14: { 0.025: 2.145, 0.05: 1.761 },
-                15: { 0.025: 2.131, 0.05: 1.753 }
-            };
-
-            return tTable[df] ? tTable[df][alpha] : null;
-        }
-
-        function calculateT(sampleMean, populationMean, sampleStandardDeviation, sampleSize) {
-            return (sampleMean - populationMean) / (sampleStandardDeviation / Math.sqrt(sampleSize));
-        }
+        let oneTailedTestType = "";
 
         function generateProblem() {
             const populationMean = Math.floor(Math.random() * 20 + 60);
-            const sampleSize = Math.floor(Math.random() * 10 + 5);
+            const sampleSize = Math.floor(Math.random() * 10 + 30);
             const sampleMean = Math.floor(Math.random() * 20 + populationMean - 10);
-            const sampleStandardDeviation = Math.floor(Math.random() * 5 + 5);
+            const populationStandardDeviation = Math.floor(Math.random() * 5 + 5);
             const alpha = 0.05;
-            const degreesOfFreedom = sampleSize - 1;
-            const criticalValue = calculateCriticalT(alpha, degreesOfFreedom);
-            const calculatedT = calculateT(sampleMean, populationMean, sampleStandardDeviation, sampleSize);
+            const criticalValue = alpha === 0.05 ? 1.645 : 1.96; // Using z critical value for 5% level
+            const calculatedZ = (sampleMean - populationMean) / (populationStandardDeviation / Math.sqrt(sampleSize));
 
             const testTypes = ["left-tailed", "right-tailed"];
             oneTailedTestType = testTypes[Math.floor(Math.random() * testTypes.length)];
@@ -104,11 +77,10 @@
                 populationMean: populationMean,
                 sampleSize: sampleSize,
                 sampleMean: sampleMean,
-                sampleStandardDeviation: sampleStandardDeviation,
+                populationStandardDeviation: populationStandardDeviation,
                 alpha: alpha,
-                degreesOfFreedom: degreesOfFreedom,
                 criticalValue: criticalValue,
-                calculatedT: calculatedT
+                calculatedZ: calculatedZ
             };
 
             let testDirection = "";
@@ -119,7 +91,7 @@
             }
 
             document.getElementById("problem").innerHTML = 
-                `Given a sample size of ${sampleSize}, sample mean of ${sampleMean}, and sample standard deviation of ${sampleStandardDeviation}, ${testDirection} at an alpha level of ${alpha}.`;
+                `Given a sample size of ${sampleSize}, sample mean of ${sampleMean}, and population standard deviation of ${populationStandardDeviation}, ${testDirection} at an alpha level of ${alpha}.`;
         }
 
         function checkHypotheses() {
@@ -161,41 +133,41 @@
                 document.getElementById("resultStep2").innerHTML = "Step 2 is correct!";
                 document.getElementById("resultStep2").classList.remove("error");
             } else {
-                document.getElementById("resultStep2").innerHTML = `Step 2 is incorrect. The correct decision rule should be: If t ${correctComparisonSymbol} ${correctCriticalValue}.`;
+                document.getElementById("resultStep2").innerHTML = `Step 2 is incorrect. The correct decision rule should be: If z ${correctComparisonSymbol} ${correctCriticalValue}.`;
                 document.getElementById("resultStep2").classList.add("error");
             }
         }
 
         function checkStep3() {
-            const calculatedTInput = parseFloat(document.getElementById("calculatedT").value.trim());
+            const calculatedZInput = parseFloat(document.getElementById("calculatedZ").value.trim());
 
-            if (!isNaN(calculatedTInput) && calculatedTInput.toFixed(2) === problemData.calculatedT.toFixed(2)) {
+            if (!isNaN(calculatedZInput) && calculatedZInput.toFixed(2) === problemData.calculatedZ.toFixed(2)) {
                 document.getElementById("resultStep3").innerHTML = "Step 3 is correct!";
                 document.getElementById("resultStep3").classList.remove("error");
             } else {
-                document.getElementById("resultStep3").innerHTML = `Step 3 is incorrect. The correct t-value is ${problemData.calculatedT.toFixed(2)}.`;
+                document.getElementById("resultStep3").innerHTML = `Step 3 is incorrect. The correct z-value is ${problemData.calculatedZ.toFixed(2)}.`;
                 document.getElementById("resultStep3").classList.add("error");
             }
         }
 
         function checkDecision() {
             const decisionInput = document.getElementById("decision").value.trim().toLowerCase();
-            const calculatedT = parseFloat(document.getElementById("calculatedT").value.trim());
+            const calculatedZ = parseFloat(document.getElementById("calculatedZ").value.trim());
             const criticalValue = problemData.criticalValue;
 
             let correctDecision = "";
 
             if (oneTailedTestType === "right-tailed") {
-                correctDecision = calculatedT > criticalValue ? "reject" : "not reject";
+                correctDecision = calculatedZ > criticalValue ? "reject" : "not reject";
             } else if (oneTailedTestType === "left-tailed") {
-                correctDecision = calculatedT < -criticalValue ? "reject" : "not reject";
+                correctDecision = calculatedZ < -criticalValue ? "reject" : "not reject";
             }
 
             if (decisionInput === correctDecision) {
-                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! t = ${calculatedT.toFixed(2)} compared to critical value ${criticalValue.toFixed(3)}: ${correctDecision} H₀.`;
+                document.getElementById("resultStep4").innerHTML = `Step 4 is correct! z = ${calculatedZ.toFixed(2)} compared to critical value ${criticalValue.toFixed(3)}: ${correctDecision} H₀.`;
                 document.getElementById("resultStep4").classList.remove("error");
             } else {
-                document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Based on t = ${calculatedT.toFixed(2)} and the critical value of ${criticalValue.toFixed(3)}, you should ${correctDecision} H₀.`;
+                document.getElementById("resultStep4").innerHTML = `Step 4 is incorrect. Based on z = ${calculatedZ.toFixed(2)} and the critical value of ${criticalValue.toFixed(3)}, you should ${correctDecision} H₀.`;
                 document.getElementById("resultStep4").classList.add("error");
             }
         }
