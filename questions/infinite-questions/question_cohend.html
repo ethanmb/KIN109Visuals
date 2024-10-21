@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cohen's d Calculator</title>
+  <style>
+    .canvas-lms-style {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="canvas-lms-style">
+  <h3>Calculate Cohen's d Effect Size</h3>
+  
+  <p id="question-text"></p>
+  
+  <p><strong>Step 1: Identify the test type.</strong></p>
+  <p>Is this a one-sample z-test or a one-sample t-test?</p>
+  <select id="test-type-choice">
+    <option value="">--Select--</option>
+    <option value="z-test">One-sample z-test</option>
+    <option value="t-test">One-sample t-test</option>
+  </select>
+  
+  <button onclick="checkTestType()">Submit Test Type</button>
+
+  <div id="step-2" style="display:none;">
+    <p><strong>Step 2: Calculate Cohen's d</strong></p>
+    
+    <p>Population Mean (μ): <span id="population-mean"></span></p>
+    <p>Sample Mean (M): <span id="sample-mean"></span></p>
+    <p>Standard Deviation (σ or s): <span id="std-dev"></span></p>
+    <p>Sample Size (n): <span id="sample-size"></span></p>
+
+    <p>Your calculated Cohen's d (enter as a positive or negative value): <input type="number" id="student-cohens-d" step="0.01"></p>
+
+    <button onclick="checkAnswer()">Submit Cohen's d</button>
+  </div>
+
+  <div id="effect-size-magnitude" style="display:none;">
+    <p><strong>Step 3: Based on the absolute value of Cohen's d, what is the magnitude of the effect?</strong></p>
+    <p>(Select the magnitude category that corresponds to the absolute value of Cohen's d.)</p>
+    <select id="effect-size-choice">
+      <option value="">--Select--</option>
+      <option value="trivial">Trivial Effect </option>
+      <option value="trivial-to-small">Trivial-to-Small </option>
+      <option value="small">Small </option>
+      <option value="small-to-medium">Small-to-Medium </option>
+      <option value="medium">Medium </option>
+      <option value="medium-to-large">Medium-to-Large </option>
+      <option value="large">Large </option>
+    </select>
+    <button onclick="checkEffectSize()">Submit Effect Size</button>
+  </div>
+  
+  <p id="feedback"></p>
+</div>
+
+<script>
+let populationMean, sampleMean, stdDev, sampleSize, isZTest, cohensD;
+
+function generateNewProblem() {
+  isZTest = Math.random() < 0.5; 
+
+  populationMean = (Math.random() * 20 + 70).toFixed(2); 
+  sampleMean = (Math.random() * 10 + 70).toFixed(2); 
+  stdDev = (Math.random() * 5 + 1).toFixed(2); 
+  sampleSize = Math.floor(Math.random() * 30 + 10); 
+  
+  document.getElementById('population-mean').innerText = populationMean;
+  document.getElementById('sample-mean').innerText = sampleMean;
+  document.getElementById('std-dev').innerText = stdDev;
+  document.getElementById('sample-size').innerText = sampleSize;
+  document.getElementById('student-cohens-d').value = "";
+  document.getElementById('feedback').innerText = "";
+  document.getElementById('step-2').style.display = 'none';
+  document.getElementById('effect-size-magnitude').style.display = 'none';
+
+  let questionText = `A study was conducted to compare a sample's mean (${sampleMean}) with a population mean of ${populationMean}. The standard deviation is ${stdDev} and the sample size is ${sampleSize}. `;
+  questionText += isZTest ? "You know the population standard deviation. " : "You only know the sample standard deviation. ";
+  questionText += "Determine if this is a one-sample z-test or t-test and calculate Cohen's d.";
+  
+  document.getElementById('question-text').innerText = questionText;
+}
+
+function checkTestType() {
+  let selectedTestType = document.getElementById('test-type-choice').value;
+
+  if (selectedTestType === "") {
+    document.getElementById('feedback').innerText = "Please select whether this is a z-test or t-test.";
+    document.getElementById('feedback').style.color = 'red';
+    return;
+  }
+
+  if ((isZTest && selectedTestType === "z-test") || (!isZTest && selectedTestType === "t-test")) {
+    document.getElementById('feedback').innerText = "Correct! Now, calculate Cohen's d.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('step-2').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = "Incorrect. This is a " + (isZTest ? "one-sample z-test." : "one-sample t-test.");
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkAnswer() {
+  let studentCohensD = parseFloat(document.getElementById('student-cohens-d').value);
+
+  if (isNaN(studentCohensD)) {
+    document.getElementById('feedback').innerText = "Please enter a value for Cohen's d.";
+    document.getElementById('feedback').style.color = 'red';
+    return;
+  }
+
+  cohensD = ((sampleMean - populationMean) / stdDev).toFixed(2);
+
+  if (Math.abs(studentCohensD - cohensD) <= 0.01) {
+    document.getElementById('feedback').innerText = "Correct! Cohen's d is " + cohensD;
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('effect-size-magnitude').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = "Incorrect. Try again!";
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkEffectSize() {
+  let selectedValue = document.getElementById('effect-size-choice').value;
+
+  if (selectedValue === "") {
+    document.getElementById('feedback').innerText = "Please select an effect size category.";
+    document.getElementById('feedback').style.color = 'red';
+    return;
+  }
+
+  let absCohensD = Math.abs(cohensD);
+  let magnitudeCategory = "";
+  
+  if (absCohensD < 0.1) {
+    magnitudeCategory = "trivial";
+  } else if (absCohensD >= 0.1 && absCohensD <= 0.14) {
+    magnitudeCategory = "trivial-to-small";
+  } else if (absCohensD >= 0.15 && absCohensD <= 0.25) {
+    magnitudeCategory = "small";
+  } else if (absCohensD >= 0.26 && absCohensD <= 0.44) {
+    magnitudeCategory = "small-to-medium";
+  } else if (absCohensD >= 0.45 && absCohensD <= 0.55) {
+    magnitudeCategory = "medium";
+  } else if (absCohensD >= 0.56 && absCohensD <= 0.75) {
+    magnitudeCategory = "medium-to-large";
+  } else {
+    magnitudeCategory = "large";
+  }
+
+  if (selectedValue === magnitudeCategory) {
+    document.getElementById('feedback').innerText = "Correct! The effect size magnitude is " + magnitudeCategory.replace(/-/g, ' ');
+    document.getElementById('feedback').style.color = 'green';
+  } else {
+    document.getElementById('feedback').innerText = "Incorrect. The effect size magnitude is " + magnitudeCategory.replace(/-/g, ' ');
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+generateNewProblem(); // Initialize the first problem on page load
+</script>
+
+</body>
+</html>

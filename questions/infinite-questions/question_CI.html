@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confidence Interval Practice</title>
+  <style>
+    .canvas-lms-style {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="canvas-lms-style">
+  <h3>Confidence Interval Infinite Practice Problem</h3>
+  
+  <p id="question-text"></p>
+  
+  <p><strong>Step 1: Identify the test type.</strong></p>
+  <p>Should you use a one-sample z-test or a one-sample t-test to calculate the confidence interval?</p>
+  <select id="test-type-choice">
+    <option value="">--Select--</option>
+    <option value="z-test">One-sample z-test</option>
+    <option value="t-test">One-sample t-test</option>
+  </select>
+  
+  <button onclick="checkTestType()">Submit Test Type</button>
+
+  <div id="step-2" style="display:none;">
+    <p><strong>Step 2: Identify the critical value</strong></p>
+    <p>What is the critical value for a <span id="confidence-level"></span>% confidence interval?</p>
+    <input type="number" id="student-critical-value" step="0.001">
+    <button onclick="checkCriticalValue()">Submit Critical Value</button>
+  </div>
+
+  <div id="step-3" style="display:none;">
+    <p><strong>Step 3: Calculate the margin of error.</strong></p>
+    <p>Your calculated margin of error: <input type="number" id="student-margin-error" step="0.01"></p>
+    <button onclick="checkMarginError()">Submit Margin of Error</button>
+  </div>
+
+  <div id="step-4" style="display:none;">
+    <p><strong>Step 4: Calculate the confidence interval bounds.</strong></p>
+    <p>Enter the confidence interval in the format [lower bound, upper bound]:</p>
+    <p><input type="number" id="lower-bound" step="0.01"> , <input type="number" id="upper-bound" step="0.01"></p>
+    <button onclick="checkConfidenceInterval()">Submit Confidence Interval</button>
+  </div>
+
+  <div id="step-5" style="display:none;">
+    <h4>Step 5: Check for Statistical Significance</h4>
+    <p>Select the correct conclusion based on the confidence level:</p>
+    <select id="significance-choice">
+      <option value="">Select...</option>
+      <option value="yes-0.10">Yes, it is statistically significant at α = .10</option>
+      <option value="yes-0.05">Yes, it is statistically significant at α = .05</option>
+      <option value="yes-0.01">Yes, it is statistically significant at α = .01</option>
+      <option value="no-0.10">No, it is not statistically significant at α = .10</option>
+      <option value="no-0.05">No, it is not statistically significant at α = .05</option>
+      <option value="no-0.01">No, it is not statistically significant at α = .01</option>
+    </select>
+    <button onclick="checkSignificance()">Check Significance</button>
+  </div>
+
+  <div id="feedback"></div>
+</div>
+
+<script>
+let populationMean, sampleMean, stdDev, sampleSize, isZTest, confidenceLevel, criticalValue, marginError;
+let correctLower, correctUpper; // Declare globally
+
+function generateNewProblem() {
+  const confidenceLevels = [90, 95, 99];
+  confidenceLevel = confidenceLevels[Math.floor(Math.random() * confidenceLevels.length)];
+  
+  isZTest = Math.random() < 0.5; 
+
+  const sampleSizes = [4, 9, 16, 25, 36, 49, 100];
+  sampleSize = sampleSizes[Math.floor(Math.random() * sampleSizes.length)];
+  
+  populationMean = (Math.random() * 20 + 70).toFixed(2); 
+  sampleMean = (Math.random() * 10 + 70).toFixed(2); 
+  stdDev = (Math.random() * 5 + 1).toFixed(2); 
+  
+  document.getElementById('confidence-level').innerText = confidenceLevel;
+  document.getElementById('student-critical-value').value = "";
+  document.getElementById('student-margin-error').value = "";
+  document.getElementById('lower-bound').value = "";
+  document.getElementById('upper-bound').value = "";
+  document.getElementById('feedback').innerText = "";
+  
+  document.getElementById('step-2').style.display = 'none';
+  document.getElementById('step-3').style.display = 'none';
+  document.getElementById('step-4').style.display = 'none';
+  document.getElementById('step-5').style.display = 'none';
+  
+  let questionText = `You are asked to calculate a ${confidenceLevel}% confidence interval for the sample mean. The sample mean is ${sampleMean}, the population mean is ${populationMean}, and the standard deviation is ${stdDev}. The sample size is ${sampleSize}. `;
+  questionText += isZTest ? "You know the population standard deviation. " : "You only know the sample standard deviation. ";
+  
+  document.getElementById('question-text').innerText = questionText;
+}
+
+function checkTestType() {
+  let selectedTestType = document.getElementById('test-type-choice').value;
+
+  if (selectedTestType === "") {
+    document.getElementById('feedback').innerText = "Please select whether this is a z-test or t-test.";
+    document.getElementById('feedback').style.color = 'red';
+    return;
+  }
+
+  if ((isZTest && selectedTestType === "z-test") || (!isZTest && selectedTestType === "t-test")) {
+    document.getElementById('feedback').innerText = "Correct! Now, identify the critical value.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('step-2').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = "Incorrect. This is a " + (isZTest ? "one-sample z-test." : "one-sample t-test.");
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkCriticalValue() {
+  let studentCriticalValue = parseFloat(document.getElementById('student-critical-value').value);
+
+  if (isNaN(studentCriticalValue)) {
+    document.getElementById('feedback').innerText = "Please enter a valid critical value.";
+    document.getElementById('feedback').style.color = 'red';
+    return;
+  }
+
+  if (isZTest) {
+    if (confidenceLevel === 90) {
+      criticalValue = 1.645;
+    } else if (confidenceLevel === 95) {
+      criticalValue = 1.960;
+    } else if (confidenceLevel === 99) {
+      criticalValue = 2.576;
+    }
+  } else {
+    const tValues = {
+      4: { 90: 2.352, 95: 3.179, 99: 5.797 },
+      9: { 90: 1.860, 95: 2.306, 99: 3.356 },
+      16: { 90: 1.753, 95: 2.131, 99: 2.947 },
+      25: { 90: 1.711, 95: 2.064, 99: 2.797 },
+      36: { 90: 1.697, 95: 2.064, 99: 2.750 },
+      49: { 90: 1.684, 95: 2.021, 99: 2.705 },
+      100: { 90: 1.662, 95: 1.987, 99: 2.632 }
+    };
+    criticalValue = tValues[sampleSize][confidenceLevel];
+  }
+
+  if (Math.abs(studentCriticalValue - criticalValue) <= 0.01) {
+    document.getElementById('feedback').innerText = "Correct! Now, calculate the margin of error.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('step-3').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. The correct critical value is ${criticalValue}.Remember that we need to use df = n-1 and always round down on the t-table if you are between df`;
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkMarginError() {
+  let studentMarginError = parseFloat(document.getElementById('student-margin-error').value);
+  let stdError = stdDev / Math.sqrt(sampleSize);
+  marginError = (criticalValue * stdError).toFixed(2);
+
+  if (Math.abs(studentMarginError - marginError) <= 0.01) {
+    document.getElementById('feedback').innerText = "Correct! Now, calculate the confidence interval.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('step-4').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. The correct margin of error is ${marginError}.Double check to see if you calculated your standard error before multiplying it by the critical value.`;
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkConfidenceInterval() {
+  let lowerBound = parseFloat(document.getElementById('lower-bound').value);
+  let upperBound = parseFloat(document.getElementById('upper-bound').value);
+  correctLower = (parseFloat(sampleMean) - parseFloat(marginError)).toFixed(2);
+  correctUpper = (parseFloat(sampleMean) + parseFloat(marginError)).toFixed(2);
+
+  if (Math.abs(lowerBound - correctLower) <= 0.01 && Math.abs(upperBound - correctUpper) <= 0.01) {
+    document.getElementById('feedback').innerText = "Correct! Now, based on the confidence interval you calculated, does this provide evidence of statistical significance?";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('step-5').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. The correct confidence interval is [${correctLower}, ${correctUpper}].`;
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkSignificance() {
+    const selectedChoice = document.getElementById('significance-choice').value;
+    const alpha = selectedChoice.split('-')[1]; // Extract the significance level (e.g., 0.05, 0.01, etc.)
+  
+    const lowerBound = parseFloat(document.getElementById('lower-bound').value);
+    const upperBound = parseFloat(document.getElementById('upper-bound').value);
+  
+    // Check if the confidence interval includes the population mean
+    const includesPopulationMean = lowerBound < populationMean && upperBound > populationMean;
+    
+    // Correct conclusions based on whether the interval includes the population mean
+    let correctSignificance;
+    if (includesPopulationMean) {
+      correctSignificance = `no-${alpha}`; // No significance if population mean is within the bounds
+    } else {
+      correctSignificance = `yes-${alpha}`; // Significant if population mean is outside the bounds
+    }
+  
+    // Compare user's selected choice with the correct result
+    if (selectedChoice === correctSignificance) {
+      document.getElementById('feedback').innerText = `Correct! The confidence interval ${includesPopulationMean ? 'does not provide' : 'provides'} evidence of statistical significance at α = ${alpha}.`;
+      document.getElementById('feedback').style.color = 'green';
+    } else {
+      document.getElementById('feedback').innerText = `Incorrect. The correct conclusion is that the confidence interval ${includesPopulationMean ? 'does not provide' : 'provides'} evidence of statistical significance at α = ${alpha}.`;
+      document.getElementById('feedback').style.color = 'red';
+    }
+  }
+  
+
+generateNewProblem(); // Initialize the first problem on page load
+</script>
+
+</body>
+</html>
