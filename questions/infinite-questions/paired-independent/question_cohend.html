@@ -85,36 +85,45 @@
 let sampleType, mean1, mean2, stdDev1, stdDev2, sampleSize1, sampleSize2, meanDifference, stdDevDifference, cohensD;
 
 function generateNewProblem() {
-  // Hide all steps and feedback, reset inputs
-  document.getElementById('sample-type-choice').value = "";
-  document.getElementById('student-cohens-d').value = "";
-  document.getElementById('feedback').innerText = "";
-  document.getElementById('step-2').style.display = 'none';
-  document.getElementById('effect-size-magnitude').style.display = 'none';
-  document.getElementById('regenerate-button').style.display = 'none'; // Hide regenerate button initially
+    // Reset visibility and feedback
+    document.getElementById('sample-type-choice').value = "";
+    document.getElementById('student-cohens-d').value = "";
+    document.getElementById('feedback').innerText = "";
+    document.getElementById('step-2').style.display = 'none';
+    document.getElementById('effect-size-magnitude').style.display = 'none';
+    document.getElementById('regenerate-button').style.display = 'none'; // Hide regenerate button initially
 
-  // Randomly assign sample type and generate data
-  if (Math.random() < 0.5) {
-    sampleType = "paired";
-    sampleSize1 = Math.floor(Math.random() * 10 + 5);
-    meanDifference = (Math.random() * 5).toFixed(2);
-    stdDevDifference = (Math.random() * 2 + 1).toFixed(2);
+    // Randomly assign sample type and generate data
+    if (Math.random() < 0.5) {
+        sampleType = "paired";
+        sampleSize1 = Math.floor(Math.random() * 10 + 5);
+        meanDifference = (Math.random() * 5).toFixed(2);
+        stdDevDifference = (Math.random() * 2 + 1).toFixed(2);
 
-    // Paired samples question
-    document.getElementById('question-text').innerText = `A group of individuals was tested before and after an intervention. The mean difference between the measurements is ${meanDifference}, with a standard deviation of ${stdDevDifference} for a sample size of ${sampleSize1}. Calculate Cohen's d for the effect size.`;
-  } else {
-    sampleType = "independent";
-    sampleSize1 = Math.floor(Math.random() * 10 + 5);
-    sampleSize2 = Math.floor(Math.random() * 10 + 5);
-    mean1 = (Math.random() * 10 + 70).toFixed(2);
-    mean2 = (Math.random() * 10 + 70).toFixed(2);
-    stdDev1 = (Math.random() * 5 + 1).toFixed(2);
-    stdDev2 = (Math.random() * 5 + 1).toFixed(2);
+        // Paired samples question
+        const pairedScenarios = [
+            `A group of individuals was measured on a certain metric before and after an intervention. The mean difference in scores was ${meanDifference}, with a standard deviation of ${stdDevDifference} for a sample size of ${sampleSize1}. Calculate Cohen's d for the effect size.`,
+            `Participants were assessed in two conditions, and the difference in their scores between Condition 1 and Condition 2 showed a mean of ${meanDifference} and a standard deviation of ${stdDevDifference}, based on a sample of ${sampleSize1} individuals. Calculate Cohen's d to estimate the effect size.`
+        ];
+        document.getElementById('question-text').innerText = pairedScenarios[Math.floor(Math.random() * pairedScenarios.length)];
+    } else {
+        sampleType = "independent";
+        sampleSize1 = Math.floor(Math.random() * 10 + 5);
+        sampleSize2 = Math.floor(Math.random() * 10 + 5);
+        mean1 = (Math.random() * 10 + 70).toFixed(2);
+        mean2 = (Math.random() * 10 + 70).toFixed(2);
+        stdDev1 = (Math.random() * 5 + 1).toFixed(2);
+        stdDev2 = (Math.random() * 5 + 1).toFixed(2);
 
-    // Independent samples question
-    document.getElementById('question-text').innerText = `Two groups were tested independently. Group 1 has a mean of ${mean1} and a standard deviation of ${stdDev1} (n = ${sampleSize1}). Group 2 has a mean of ${mean2} and a standard deviation of ${stdDev2} (n = ${sampleSize2}). Calculate Cohen's d for the effect size.`;
-  }
+        // Independent samples question
+        const independentScenarios = [
+            `Two groups of participants were tested to evaluate an intervention. Group 1 has a mean score of ${mean1} with a standard deviation of ${stdDev1} (n = ${sampleSize1}), and Group 2 has a mean score of ${mean2} with a standard deviation of ${stdDev2} (n = ${sampleSize2}). Calculate Cohen's d for the effect size.`,
+            `In a study comparing two distinct groups, Group A showed a mean of ${mean1} with a standard deviation of ${stdDev1} and a sample size of ${sampleSize1}, while Group B had a mean of ${mean2} with a standard deviation of ${stdDev2} and a sample size of ${sampleSize2}. Determine the Cohen's d effect size for the difference between these groups.`
+        ];
+        document.getElementById('question-text').innerText = independentScenarios[Math.floor(Math.random() * independentScenarios.length)];
+    }
 }
+
 
 function checkSampleType() {
   let selectedSampleType = document.getElementById('sample-type-choice').value;
@@ -130,31 +139,32 @@ function checkSampleType() {
 }
 
 function checkAnswer() {
-  let studentCohensD = parseFloat(document.getElementById('student-cohens-d').value);
-  if (isNaN(studentCohensD)) {
-    document.getElementById('feedback').innerText = "Please enter a value for Cohen's d.";
-    document.getElementById('feedback').style.color = 'red';
-    return;
-  }
+    let studentCohensD = parseFloat(document.getElementById('student-cohens-d').value);
+    if (isNaN(studentCohensD)) {
+        document.getElementById('feedback').innerText = "Please enter a value for Cohen's d.";
+        document.getElementById('feedback').style.color = 'red';
+        return;
+    }
 
-  // Calculate Cohen's d based on sample type
-  if (sampleType === 'paired') {
-    cohensD = (meanDifference / stdDevDifference).toFixed(2);
-  } else {
-    const pooledStdDev = Math.sqrt(((sampleSize1 - 1) * stdDev1 ** 2 + (sampleSize2 - 1) * stdDev2 ** 2) / (sampleSize1 + sampleSize2 - 2));
-    cohensD = ((mean1 - mean2) / pooledStdDev).toFixed(2);
-  }
+    // Calculate Cohen's d based on sample type
+    if (sampleType === 'paired') {
+        cohensD = (meanDifference / stdDevDifference).toFixed(2);
+    } else {
+        const pooledStdDev = Math.sqrt(((sampleSize1 - 1) * stdDev1 ** 2 + (sampleSize2 - 1) * stdDev2 ** 2) / (sampleSize1 + sampleSize2 - 2));
+        cohensD = ((mean1 - mean2) / pooledStdDev).toFixed(2);
+    }
 
-  if (Math.abs(studentCohensD - cohensD) <= 0.01) {
-    document.getElementById('feedback').innerText = "Correct! Cohen's d is " + cohensD;
-    document.getElementById('feedback').style.color = 'green';
-    document.getElementById('effect-size-magnitude').style.display = 'block';
-  } else {
-    document.getElementById('feedback').innerText = `Incorrect. The correct Cohen's d is ${cohensD}. Please proceed to the next step.`;
-    document.getElementById('feedback').style.color = 'red';
-    document.getElementById('effect-size-magnitude').style.display = 'block'; // Show next step
-  }
+    if (Math.abs(studentCohensD - cohensD) <= 0.01) {
+        document.getElementById('feedback').innerText = "Correct! Cohen's d is " + cohensD;
+        document.getElementById('feedback').style.color = 'green';
+        document.getElementById('effect-size-magnitude').style.display = 'block';
+    } else {
+        document.getElementById('feedback').innerText = `Incorrect. The correct Cohen's d is ${cohensD}. Please proceed to the next step.`;
+        document.getElementById('feedback').style.color = 'red';
+        document.getElementById('effect-size-magnitude').style.display = 'block'; // Show next step
+    }
 }
+
 
 function checkEffectSize() {
   let selectedValue = document.getElementById('effect-size-choice').value;

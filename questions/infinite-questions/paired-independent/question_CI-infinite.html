@@ -84,51 +84,53 @@ let mean1, mean2, stdDev1, stdDev2, sampleSize1, sampleSize2;
 let correctLower, correctUpper;
 
 function generateNewProblem() {
-  // Hide all steps and feedback, reset inputs
-  document.getElementById('step-2').style.display = 'none';
-  document.getElementById('step-3').style.display = 'none';
-  document.getElementById('step-4').style.display = 'none';
-  document.getElementById('regenerate-button').style.display = 'none';
-  document.getElementById('feedback').innerText = '';
-  document.getElementById('sample-type-choice').value = '';
-  document.getElementById('student-critical-value').value = '';
-  document.getElementById('student-margin-error').value = '';
-  document.getElementById('lower-bound').value = '';
-  document.getElementById('upper-bound').value = '';
+    // Reset visibility and feedback
+    document.getElementById('step-2').style.display = 'none';
+    document.getElementById('step-3').style.display = 'none';
+    document.getElementById('step-4').style.display = 'none';
+    document.getElementById('regenerate-button').style.display = 'none';
+    document.getElementById('feedback').innerText = '';
+    document.getElementById('sample-type-choice').value = '';
+    document.getElementById('student-critical-value').value = '';
+    document.getElementById('student-margin-error').value = '';
+    document.getElementById('lower-bound').value = '';
+    document.getElementById('upper-bound').value = '';
 
-  const confidenceLevels = [90, 95, 99];
-  confidenceLevel = confidenceLevels[Math.floor(Math.random() * confidenceLevels.length)];
-  document.getElementById('confidence-level').innerText = confidenceLevel;
+    const confidenceLevels = [90, 95, 99];
+    confidenceLevel = confidenceLevels[Math.floor(Math.random() * confidenceLevels.length)];
+    document.getElementById('confidence-level').innerText = confidenceLevel;
 
-  // Randomly decide on sample type for demonstration
-  if (Math.random() < 0.5) {
-    sampleType = "paired";
-    sampleSize = Math.floor(Math.random() * 10 + 5);
-    meanDifference = (Math.random() * 10).toFixed(2);
-    stdDevDifference = (Math.random() * 5 + 1).toFixed(2);
+    // Randomly decide on sample type
+    if (Math.random() < 0.5) {
+        sampleType = "paired";
+        sampleSize = Math.floor(Math.random() * 10 + 5);
+        meanDifference = (Math.random() * 10).toFixed(2);
+        stdDevDifference = (Math.random() * 5 + 1).toFixed(2);
 
-    const pairedScenarios = [
-      `A group of individuals was measured before and after a treatment. The mean difference between the two measurements was ${meanDifference} with a standard deviation of ${stdDevDifference} for a sample size of ${sampleSize}. Calculate a ${confidenceLevel}% confidence interval for the mean difference.`,
-      `The difference between paired measurements for a sample size of ${sampleSize} is found to have a mean of ${meanDifference} and a standard deviation of ${stdDevDifference}. Calculate a ${confidenceLevel}% confidence interval for the mean difference.`
-    ];
-    document.getElementById('question-text').innerText = pairedScenarios[Math.floor(Math.random() * pairedScenarios.length)];
+        // Paired sample scenarios without directly saying "paired"
+        const pairedScenarios = [
+            `A study measured participants' responses to a treatment before and after it was administered. The difference in responses had a mean of ${meanDifference} and a standard deviation of ${stdDevDifference} for a sample of ${sampleSize} participants. Calculate a ${confidenceLevel}% confidence interval for the mean difference in response.`,
+            `In an experiment, each participant was tested under two different conditions. The average change between conditions was ${meanDifference} with a standard deviation of ${stdDevDifference}, based on data from ${sampleSize} individuals. Calculate a ${confidenceLevel}% confidence interval for the average difference between conditions.`,
+        ];
+        document.getElementById('question-text').innerText = pairedScenarios[Math.floor(Math.random() * pairedScenarios.length)];
+    } else {
+        sampleType = "independent";
+        sampleSize1 = Math.floor(Math.random() * 10 + 5);
+        sampleSize2 = Math.floor(Math.random() * 10 + 5);
+        mean1 = (Math.random() * 20 + 50).toFixed(2);
+        mean2 = (Math.random() * 20 + 50).toFixed(2);
+        stdDev1 = (Math.random() * 5 + 1).toFixed(2);
+        stdDev2 = (Math.random() * 5 + 1).toFixed(2);
 
-  } else {
-    sampleType = "independent";
-    sampleSize1 = Math.floor(Math.random() * 10 + 5);
-    sampleSize2 = Math.floor(Math.random() * 10 + 5);
-    mean1 = (Math.random() * 20 + 50).toFixed(2);
-    mean2 = (Math.random() * 20 + 50).toFixed(2);
-    stdDev1 = (Math.random() * 5 + 1).toFixed(2);
-    stdDev2 = (Math.random() * 5 + 1).toFixed(2);
-
-    const independentScenarios = [
-      `Two separate groups were tested under different conditions. Group 1 has a mean of ${mean1} with a standard deviation of ${stdDev1} (sample size ${sampleSize1}), and Group 2 has a mean of ${mean2} with a standard deviation of ${stdDev2} (sample size ${sampleSize2}). Calculate a ${confidenceLevel}% confidence interval for the difference in means.`,
-      `Two independent samples have the following statistics: Sample 1 mean is ${mean1}, standard deviation is ${stdDev1}, and size is ${sampleSize1}. Sample 2 mean is ${mean2}, standard deviation is ${stdDev2}, and size is ${sampleSize2}. Calculate a ${confidenceLevel}% confidence interval for the difference in means.`
-    ];
-    document.getElementById('question-text').innerText = independentScenarios[Math.floor(Math.random() * independentScenarios.length)];
-  }
+        // Independent sample scenarios without directly saying "independent"
+        const independentScenarios = [
+            `Two groups were given different conditions to test their effect. Group 1 had an average score of ${mean1} with a standard deviation of ${stdDev1} (sample size ${sampleSize1}), while Group 2 had an average score of ${mean2} with a standard deviation of ${stdDev2} (sample size ${sampleSize2}). Calculate a ${confidenceLevel}% confidence interval for the difference in group means.`,
+            `In a comparative study, two distinct groups showed mean values of ${mean1} and ${mean2} with standard deviations of ${stdDev1} and ${stdDev2}, respectively. The sample sizes were ${sampleSize1} for Group 1 and ${sampleSize2} for Group 2. Determine a ${confidenceLevel}% confidence interval for the difference between the groups' mean values.`
+        ];
+        document.getElementById('question-text').innerText = independentScenarios[Math.floor(Math.random() * independentScenarios.length)];
+    }
 }
+
 
 function checkSampleType() {
   let selectedSampleType = document.getElementById('sample-type-choice').value;
