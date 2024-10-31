@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cohen's d Effect Size Calculator</title>
+  <style>
+    .canvas-lms-style {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #regenerate-button {
+      display: none; /* Initially hidden */
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="canvas-lms-style">
+  <h3>Calculate Cohen's d Effect Size</h3>
+  
+  <p id="question-text"></p>
+  
+  <p><strong>Step 1: Identify the sample type.</strong></p>
+  <p>Is this problem using paired samples or independent samples?</p>
+  <select id="sample-type-choice">
+    <option value="">--Select--</option>
+    <option value="paired">Paired Samples</option>
+    <option value="independent">Independent Samples</option>
+  </select>
+  
+  <button onclick="checkSampleType()">Submit Sample Type</button>
+
+  <div id="step-2" style="display:none;">
+    <p><strong>Step 2: Calculate Cohen's d</strong></p>
+    
+    <p>Enter your calculated Cohen's d (enter as a positive or negative value): <input type="number" id="student-cohens-d" step="0.01"></p>
+
+    <button onclick="checkAnswer()">Submit Cohen's d</button>
+  </div>
+
+  <div id="effect-size-magnitude" style="display:none;">
+    <p><strong>Step 3: Based on the absolute value of Cohen's d, what is the magnitude of the effect?</strong></p>
+    <p>(Select the magnitude category that corresponds to the absolute value of Cohen's d.)</p>
+    <select id="effect-size-choice">
+      <option value="">--Select--</option>
+      <option value="trivial">Trivial Effect</option>
+      <option value="small">Small Effect</option>
+      <option value="medium">Medium Effect</option>
+      <option value="large">Large Effect</option>
+    </select>
+    <button onclick="checkEffectSize()">Submit Effect Size</button>
+  </div>
+  
+  <p id="feedback"></p>
+  <button id="regenerate-button" onclick="generateNewProblem()">Regenerate New Question</button>
+</div>
+
+<script>
+let sampleType, mean1, mean2, stdDev1, stdDev2, sampleSize1, sampleSize2, meanDifference, stdDevDifference, cohensD;
+
+function generateNewProblem() {
+  // Hide all steps and feedback, reset inputs
+  document.getElementById('sample-type-choice').value = "";
+  document.getElementById('student-cohens-d').value = "";
+  document.getElementById('feedback').innerText = "";
+  document.getElementById('step-2').style.display = 'none';
+  document.getElementById('effect-size-magnitude').style.display = 'none';
+  document.getElementById('regenerate-button').style.display = 'none'; // Hide regenerate button initially
+
+  // Randomly assign sample type and generate data
+  if (Math.random() < 0.5) {
+    sampleType = "paired";
+    sampleSize1 = Math.floor(Math.random() * 10 + 5);
+    meanDifference = (Math.random() * 5).toFixed(2);
+    stdDevDifference = (Math.random() * 2 + 1).toFixed(2);
+
+    // Paired samples question
+    document.getElementById('question-text').innerText = `A group of individuals was tested before and after an intervention. The mean difference between the measurements is ${meanDifference}, with a standard deviation of ${stdDevDifference} for a sample size of ${sampleSize1}. Calculate Cohen's d for the effect size.`;
+  } else {
+    sampleType = "independent";
+    sampleSize1 = Math.floor(Math.random() * 10 + 5);
+    sampleSize2 = Math.floor(Math.random() * 10 + 5);
+    mean1 = (Math.random() * 10 + 70).toFixed(2);
+    mean2 = (Math.random() * 10 + 70).toFixed(2);
+    stdDev1 = (Math.random() * 5 + 1).toFixed(2);
+    stdDev2 = (Math.random() * 5 + 1).toFixed(2);
+
+    // Independent samples question
+    document.getElementById('question-text').innerText = `Two groups were tested independently. Group 1 has a mean of ${mean1} and a standard deviation of ${stdDev1} (n = ${sampleSize1}). Group 2 has a mean of ${mean2} and a standard deviation of ${stdDev2} (n = ${sampleSize2}). Calculate Cohen's d for the effect size.`;
+  }
+}
+
+function checkSampleType() {
+  let selectedSampleType = document.getElementById('sample-type-choice').value;
+
+  if (selectedSampleType === sampleType) {
+    document.getElementById('feedback').innerText = "Correct! Now, calculate Cohen's d.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('step-2').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. This problem uses ${sampleType} samples.`;
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkAnswer() {
+  let studentCohensD = parseFloat(document.getElementById('student-cohens-d').value);
+  if (isNaN(studentCohensD)) {
+    document.getElementById('feedback').innerText = "Please enter a value for Cohen's d.";
+    document.getElementById('feedback').style.color = 'red';
+    return;
+  }
+
+  // Calculate Cohen's d based on sample type
+  if (sampleType === 'paired') {
+    cohensD = (meanDifference / stdDevDifference).toFixed(2);
+  } else {
+    const pooledStdDev = Math.sqrt(((sampleSize1 - 1) * stdDev1 ** 2 + (sampleSize2 - 1) * stdDev2 ** 2) / (sampleSize1 + sampleSize2 - 2));
+    cohensD = ((mean1 - mean2) / pooledStdDev).toFixed(2);
+  }
+
+  if (Math.abs(studentCohensD - cohensD) <= 0.01) {
+    document.getElementById('feedback').innerText = "Correct! Cohen's d is " + cohensD;
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('effect-size-magnitude').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. The correct Cohen's d is ${cohensD}. Please proceed to the next step.`;
+    document.getElementById('feedback').style.color = 'red';
+    document.getElementById('effect-size-magnitude').style.display = 'block'; // Show next step
+  }
+}
+
+function checkEffectSize() {
+  let selectedValue = document.getElementById('effect-size-choice').value;
+  if (selectedValue === "") {
+    document.getElementById('feedback').innerText = "Please select an effect size category.";
+    document.getElementById('feedback').style.color = 'red';
+    return;
+  }
+
+  const absCohensD = Math.abs(cohensD);
+  let magnitudeCategory;
+
+  // Determine effect size category
+  if (absCohensD < 0.2) magnitudeCategory = "trivial";
+  else if (absCohensD < 0.5) magnitudeCategory = "small";
+  else if (absCohensD < 0.8) magnitudeCategory = "medium";
+  else magnitudeCategory = "large";
+
+  if (selectedValue === magnitudeCategory) {
+    document.getElementById('feedback').innerText = "Correct! The effect size magnitude is " + magnitudeCategory + " effect.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('regenerate-button').style.display = 'block'; // Show regenerate button
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. The effect size magnitude is a ${magnitudeCategory} effect.`;
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+generateNewProblem(); // Initialize the first problem on page load
+</script>
+
+</body>
+</html>

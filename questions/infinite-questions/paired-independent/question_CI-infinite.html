@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confidence Interval Practice: Paired or Independent Samples</title>
+  <style>
+    .canvas-lms-style {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #regenerate-button {
+      display: none; /* Initially hidden */
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="canvas-lms-style">
+  <h3>Confidence Interval Practice Problem: Paired or Independent Samples</h3>
+  
+  <p id="question-text"></p>
+  
+  <p><strong>Step 1: Identify the sample type.</strong></p>
+  <p>Is this problem using paired samples or independent samples?</p>
+  <select id="sample-type-choice">
+    <option value="">--Select--</option>
+    <option value="paired">Paired Samples</option>
+    <option value="independent">Independent Samples</option>
+  </select>
+  
+  <button onclick="checkSampleType()">Submit Sample Type</button>
+
+  <div id="step-2" style="display:none;">
+    <p><strong>Step 2: Identify the critical value</strong></p>
+    <p>What is the critical value for a <span id="confidence-level"></span>% confidence interval?</p>
+    <input type="number" id="student-critical-value" step="0.001">
+    <button onclick="checkCriticalValue()">Submit Critical Value</button>
+  </div>
+
+  <div id="step-3" style="display:none;">
+    <p><strong>Step 3: Calculate the margin of error.</strong></p>
+    <p>Your calculated margin of error: <input type="number" id="student-margin-error" step="0.01"></p>
+    <button onclick="checkMarginError()">Submit Margin of Error</button>
+  </div>
+
+  <div id="step-4" style="display:none;">
+    <p><strong>Step 4: Calculate the confidence interval bounds.</strong></p>
+    <p>Enter the confidence interval in the format [lower bound, upper bound]:</p>
+    <p><input type="number" id="lower-bound" step="0.01"> , <input type="number" id="upper-bound" step="0.01"></p>
+    <button onclick="checkConfidenceInterval()">Submit Confidence Interval</button>
+  </div>
+
+  <div id="feedback"></div>
+  <button id="regenerate-button" onclick="generateNewProblem()">Regenerate Problem</button>
+</div>
+
+<script>
+let sampleType, confidenceLevel, criticalValue, marginError;
+let meanDifference, stdDevDifference, sampleSize;
+let mean1, mean2, stdDev1, stdDev2, sampleSize1, sampleSize2;
+let correctLower, correctUpper;
+
+function generateNewProblem() {
+  // Hide all steps and feedback, reset inputs
+  document.getElementById('step-2').style.display = 'none';
+  document.getElementById('step-3').style.display = 'none';
+  document.getElementById('step-4').style.display = 'none';
+  document.getElementById('regenerate-button').style.display = 'none';
+  document.getElementById('feedback').innerText = '';
+  document.getElementById('sample-type-choice').value = '';
+  document.getElementById('student-critical-value').value = '';
+  document.getElementById('student-margin-error').value = '';
+  document.getElementById('lower-bound').value = '';
+  document.getElementById('upper-bound').value = '';
+
+  const confidenceLevels = [90, 95, 99];
+  confidenceLevel = confidenceLevels[Math.floor(Math.random() * confidenceLevels.length)];
+  document.getElementById('confidence-level').innerText = confidenceLevel;
+
+  // Randomly decide on sample type for demonstration
+  if (Math.random() < 0.5) {
+    sampleType = "paired";
+    sampleSize = Math.floor(Math.random() * 10 + 5);
+    meanDifference = (Math.random() * 10).toFixed(2);
+    stdDevDifference = (Math.random() * 5 + 1).toFixed(2);
+
+    const pairedScenarios = [
+      `A group of individuals was measured before and after a treatment. The mean difference between the two measurements was ${meanDifference} with a standard deviation of ${stdDevDifference} for a sample size of ${sampleSize}. Calculate a ${confidenceLevel}% confidence interval for the mean difference.`,
+      `The difference between paired measurements for a sample size of ${sampleSize} is found to have a mean of ${meanDifference} and a standard deviation of ${stdDevDifference}. Calculate a ${confidenceLevel}% confidence interval for the mean difference.`
+    ];
+    document.getElementById('question-text').innerText = pairedScenarios[Math.floor(Math.random() * pairedScenarios.length)];
+
+  } else {
+    sampleType = "independent";
+    sampleSize1 = Math.floor(Math.random() * 10 + 5);
+    sampleSize2 = Math.floor(Math.random() * 10 + 5);
+    mean1 = (Math.random() * 20 + 50).toFixed(2);
+    mean2 = (Math.random() * 20 + 50).toFixed(2);
+    stdDev1 = (Math.random() * 5 + 1).toFixed(2);
+    stdDev2 = (Math.random() * 5 + 1).toFixed(2);
+
+    const independentScenarios = [
+      `Two separate groups were tested under different conditions. Group 1 has a mean of ${mean1} with a standard deviation of ${stdDev1} (sample size ${sampleSize1}), and Group 2 has a mean of ${mean2} with a standard deviation of ${stdDev2} (sample size ${sampleSize2}). Calculate a ${confidenceLevel}% confidence interval for the difference in means.`,
+      `Two independent samples have the following statistics: Sample 1 mean is ${mean1}, standard deviation is ${stdDev1}, and size is ${sampleSize1}. Sample 2 mean is ${mean2}, standard deviation is ${stdDev2}, and size is ${sampleSize2}. Calculate a ${confidenceLevel}% confidence interval for the difference in means.`
+    ];
+    document.getElementById('question-text').innerText = independentScenarios[Math.floor(Math.random() * independentScenarios.length)];
+  }
+}
+
+function checkSampleType() {
+  let selectedSampleType = document.getElementById('sample-type-choice').value;
+  if (selectedSampleType === sampleType) {
+    document.getElementById('feedback').innerText = "Correct! Now, identify the critical value.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('step-2').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. This problem uses ${sampleType} samples.`;
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkCriticalValue() {
+  let studentCriticalValue = parseFloat(document.getElementById('student-critical-value').value);
+  const tValues = { 90: 1.645, 95: 1.96, 99: 2.576 }; 
+  criticalValue = tValues[confidenceLevel];
+
+  if (Math.abs(studentCriticalValue - criticalValue) <= 0.01) {
+    document.getElementById('feedback').innerText = "Correct! Now, calculate the margin of error.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('step-3').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. The correct critical value is ${criticalValue}.`;
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkMarginError() {
+  let studentMarginError = parseFloat(document.getElementById('student-margin-error').value);
+  let stdError;
+  
+  if (sampleType === 'paired') {
+    stdError = stdDevDifference / Math.sqrt(sampleSize);
+  } else {
+    stdError = Math.sqrt((stdDev1 ** 2 / sampleSize1) + (stdDev2 ** 2 / sampleSize2));
+  }
+  marginError = (criticalValue * stdError).toFixed(2);
+
+  if (Math.abs(studentMarginError - marginError) <= 0.01) {
+    document.getElementById('feedback').innerText = "Correct! Now, calculate the confidence interval.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('step-4').style.display = 'block';
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. The correct margin of error is ${marginError}.`;
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+function checkConfidenceInterval() {
+  let lowerBound = parseFloat(document.getElementById('lower-bound').value);
+  let upperBound = parseFloat(document.getElementById('upper-bound').value);
+
+  if (sampleType === 'paired') {
+    correctLower = (parseFloat(meanDifference) - parseFloat(marginError)).toFixed(2);
+    correctUpper = (parseFloat(meanDifference) + parseFloat(marginError)).toFixed(2);
+  } else {
+    let meanDifferenceIndependent = (parseFloat(mean1) - parseFloat(mean2)).toFixed(2);
+    correctLower = (parseFloat(meanDifferenceIndependent) - parseFloat(marginError)).toFixed(2);
+    correctUpper = (parseFloat(meanDifferenceIndependent) + parseFloat(marginError)).toFixed(2);
+  }
+
+  if (Math.abs(lowerBound - correctLower) <= 0.01 && Math.abs(upperBound - correctUpper) <= 0.01) {
+    document.getElementById('feedback').innerText = "Correct! You have successfully calculated the confidence interval.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('regenerate-button').style.display = 'block'; // Show the regenerate button
+  } else {
+    document.getElementById('feedback').innerText = `Incorrect. The correct confidence interval is [${correctLower}, ${correctUpper}].`;
+    document.getElementById('feedback').style.color = 'red';
+  }
+}
+
+generateNewProblem(); // Initialize the first problem on page load
+</script>
+
+</body>
+</html>
