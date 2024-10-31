@@ -5,16 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T-Test Practice: Paired or Independent Samples</title>
     <style>
-        .canvas-lms-style {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        .canvas-lms-style { font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px; margin: 0 auto; }
         .result { margin-top: 10px; color: green; }
         .error { color: red; }
         .drop-area { border: 1px dashed #ccc; padding: 10px; margin: 5px; text-align: center; }
@@ -26,106 +17,99 @@
 </head>
 <body>
 
-    <div class="canvas-lms-style">
-        <h3>T-Test Practice: Paired or Independent Samples</h3>
-        
-        <p id="problem-description"></p>
+<div class="canvas-lms-style">
+    <h3>T-Test Practice: Paired or Independent Samples</h3>
     
-        <!-- Step 1: Identify Sample Type -->
-        <div id="step-1">
-            <p><strong>Step 1: Identify the Sample Type</strong></p>
-            <p>Is this problem using paired samples or independent samples?</p>
-            <select id="sample-type-choice">
-                <option value="">--Select--</option>
-                <option value="paired">Paired Samples</option>
-                <option value="independent">Independent Samples</option>
-            </select>
-            <button onclick="checkSampleType()">Submit Sample Type</button>
-            <div id="result-step1" class="result"></div>
-        </div>
-    
-        <!-- Step 2: Determine Test Direction -->
-        <div id="step-2" style="display: none;">
-            <p><strong>Step 2: Identify the Test Direction</strong></p>
-            <p>Is this a one-tailed or two-tailed test?</p>
-            <select id="tail-type-choice">
-                <option value="">--Select--</option>
-                <option value="one-tailed">One-Tailed</option>
-                <option value="two-tailed">Two-Tailed</option>
-            </select>
-            <button onclick="checkTailType()">Submit Test Direction</button>
-            <div id="result-step2" class="result"></div>
-        </div>
-    
-        <!-- Step 3: Set Up Hypotheses -->
-        <div id="step-3" style="display: none;">
-            <p><strong>Step 3: Write the Hypotheses</strong></p>
-            <p>H₀: μ<sub>1</sub> <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub></p>
-            <p>H₁: μ<sub>1</sub> <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub></p>
-            <p>Drag and drop symbols: 
-                <span id="equals" class="draggable" draggable="true" ondragstart="drag(event)">=</span>, 
-                <span id="greater-than" class="draggable" draggable="true" ondragstart="drag(event)">></span>, 
-                <span id="less-than" class="draggable" draggable="true" ondragstart="drag(event)"><</span>, 
-                <span id="not-equal" class="draggable" draggable="true" ondragstart="drag(event)">≠</span>,
-                <span id="greater-than-equal" class="draggable" draggable="true" ondragstart="drag(event)">≥</span>, 
-                <span id="less-than-equal" class="draggable" draggable="true" ondragstart="drag(event)">≤</span>
-            </p>
-            <button onclick="checkHypotheses()">Check Hypotheses</button>
-            <div id="result-step3" class="result"></div>
-        </div>
-    
-        <!-- Step 4: Calculate t-value -->
-        <div id="step-4" style="display: none;">
-            <p><strong>Step 4: Calculate the t-value</strong></p>
-            <p>Calculated t-value: <input type="text" id="t-value-input" placeholder="Enter your calculated t value here"></p>
-            <button onclick="checkTValue()">Check Calculation</button>
-            <div id="result-step4" class="result"></div>
-        </div>
-    
-        <!-- Step 5: Make a Decision -->
-        <div id="step-5" style="display: none;">
-            <p><strong>Step 5: Make a Decision</strong></p>
-            <p>Decision: <select id="decision-choice">
-                <option value="">--Select--</option>
-                <option value="reject">Reject H₀</option>
-                <option value="accept">Accept H₀</option>
-            </select></p>
-            <button onclick="checkDecision()">Submit Decision</button>
-            <div id="result-step5" class="result"></div>
-        </div>
-    
-        <!-- Regenerate Problem Button -->
-        <button id="regenerate-button" style="display: none;" onclick="generateProblem()">Regenerate New Question</button>
+    <p id="problem-description"></p>
+
+    <!-- Step 1: Identify Sample Type -->
+    <div id="step-1">
+        <p><strong>Step 1: Identify the Sample Type</strong></p>
+        <p>Is this problem using paired samples or independent samples?</p>
+        <select id="sample-type-choice">
+            <option value="">--Select--</option>
+            <option value="paired">Paired Samples</option>
+            <option value="independent">Independent Samples</option>
+        </select>
+        <button onclick="checkSampleType()">Submit Sample Type</button>
+        <div id="result-step1" class="result"></div>
     </div>
-    
+
+    <!-- Step 2: Determine Test Direction -->
+    <div id="step-2" style="display: none;">
+        <p><strong>Step 2: Identify the Test Direction</strong></p>
+        <p>Is this a one-tailed or two-tailed test?</p>
+        <select id="tail-type-choice">
+            <option value="">--Select--</option>
+            <option value="one-tailed">One-Tailed</option>
+            <option value="two-tailed">Two-Tailed</option>
+        </select>
+        <button onclick="checkTailType()">Submit Test Direction</button>
+        <div id="result-step2" class="result"></div>
+    </div>
+
+    <!-- Step 3: Set Up Hypotheses -->
+    <div id="step-3" style="display: none;">
+        <p><strong>Step 3: Write the Hypotheses</strong></p>
+        <p id="h0-text">H₀: μ<sub>1</sub> <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub></p>
+        <p id="h1-text">H₁: μ<sub>1</sub> <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub></p>
+        <p>Drag and drop symbols: 
+            <span id="equals" class="draggable" draggable="true" ondragstart="drag(event)">=</span>, 
+            <span id="greater-than" class="draggable" draggable="true" ondragstart="drag(event)">></span>, 
+            <span id="less-than" class="draggable" draggable="true" ondragstart="drag(event)"><</span>, 
+            <span id="not-equal" class="draggable" draggable="true" ondragstart="drag(event)">≠</span>,
+            <span id="greater-than-equal" class="draggable" draggable="true" ondragstart="drag(event)">≥</span>, 
+            <span id="less-than-equal" class="draggable" draggable="true" ondragstart="drag(event)">≤</span>
+        </p>
+        <button onclick="checkHypotheses()">Check Hypotheses</button>
+        <div id="result-step3" class="result"></div>
+    </div>
+
+    <!-- Step 4: Calculate t-value -->
+    <div id="step-4" style="display: none;">
+        <p><strong>Step 4: Calculate the t-value</strong></p>
+        <p>Calculated t-value: <input type="text" id="t-value-input" placeholder="Enter your calculated t value here"></p>
+        <button onclick="checkTValue()">Check Calculation</button>
+        <div id="result-step4" class="result"></div>
+    </div>
+
+    <!-- Step 5: Make a Decision -->
+    <div id="step-5" style="display: none;">
+        <p><strong>Step 5: Make a Decision</strong></p>
+        <p>Decision: <select id="decision-choice">
+            <option value="">--Select--</option>
+            <option value="reject">Reject H₀</option>
+            <option value="accept">Accept H₀</option>
+        </select></p>
+        <button onclick="checkDecision()">Submit Decision</button>
+        <div id="result-step5" class="result"></div>
+    </div>
+
+    <!-- Regenerate Problem Button -->
+    <button id="regenerate-button" style="display: none;" onclick="generateProblem()">Regenerate New Question</button>
+</div>
 
 <script>
 let testData = {};
 
 function generateProblem() {
-    // Reset question input fields
+    // Reset question input fields and feedback messages
     document.getElementById("sample-type-choice").value = "";
     document.getElementById("tail-type-choice").value = "";
     document.getElementById("h0-symbol-drop").innerText = "[Drop Here]";
     document.getElementById("h1-symbol-drop").innerText = "[Drop Here]";
     document.getElementById("t-value-input").value = "";
     document.getElementById("decision-choice").value = "";
-
-    // Reset feedback messages
     document.getElementById("result-step1").innerText = "";
     document.getElementById("result-step2").innerText = "";
     document.getElementById("result-step3").innerText = "";
     document.getElementById("result-step4").innerText = "";
     document.getElementById("result-step5").innerText = "";
-
-    // Hide all steps except Step 1
     document.getElementById("step-1").style.display = "block";
     document.getElementById("step-2").style.display = "none";
     document.getElementById("step-3").style.display = "none";
     document.getElementById("step-4").style.display = "none";
     document.getElementById("step-5").style.display = "none";
-    
-    // Hide the regenerate button until the problem is completed
     document.getElementById("regenerate-button").style.display = "none";
 
     // Generate random data for the new problem
@@ -139,9 +123,32 @@ function generateProblem() {
     let stdDev1 = (Math.random() * 2 + 1).toFixed(2);
     let stdDev2 = (Math.random() * 2 + 1).toFixed(2);
     let degreesOfFreedom = sampleSize - 1;
-    let criticalValue = (Math.random() * 2 + 1).toFixed(2);
-    let tValue = ((sampleMean1 - sampleMean2) / Math.sqrt((stdDev1 ** 2 + stdDev2 ** 2) / sampleSize)).toFixed(2);
 
+    // Initialize `SD_diff` for paired samples and calculate `tValue`
+    let SD_diff, tValue;
+
+    if (isPaired) {
+        // Estimate SD_diff for paired samples; ideally, you’d calculate from the actual paired differences
+        SD_diff = Math.sqrt(((stdDev1 ** 2) + (stdDev2 ** 2)) / 2).toFixed(2);  
+
+        const meanDifference = sampleMean1 - sampleMean2;
+        const standardError = SD_diff / Math.sqrt(sampleSize);
+        tValue = (meanDifference / standardError).toFixed(2);
+
+        document.getElementById("h0-text").innerHTML = `H₀: μ<sub>D</sub> <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0`;
+        document.getElementById("h1-text").innerHTML = `H₁: μ<sub>D</sub> <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0`;
+
+    } else {
+        // Independent samples calculation
+        const meanDifference = sampleMean1 - sampleMean2;
+        const standardError = Math.sqrt((Math.pow(stdDev1, 2) / sampleSize) + (Math.pow(stdDev2, 2) / sampleSize));
+        tValue = (meanDifference / standardError).toFixed(2);
+
+        document.getElementById("h0-text").innerHTML = `H₀: μ<sub>1</sub> <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub>`;
+        document.getElementById("h1-text").innerHTML = `H₁: μ<sub>1</sub> <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub>`;
+    }
+
+    // Store values in `testData` object for use in other functions
     testData = {
         sampleType: isPaired ? "paired" : "independent",
         tailType: isOneTailed ? "one-tailed" : "two-tailed",
@@ -153,36 +160,29 @@ function generateProblem() {
         stdDev1: stdDev1,
         stdDev2: stdDev2,
         degreesOfFreedom: degreesOfFreedom,
-        criticalValue: criticalValue,
-        tValue: tValue
+        SD_diff: isPaired ? parseFloat(SD_diff) : null,  // Only set SD_diff for paired samples
+        tValue: parseFloat(tValue),
+        criticalValue: calculateCriticalValue(alpha, degreesOfFreedom)  // Critical value function explained below
     };
 
-    // Generate problem description based on paired or independent samples
-    let description;
-    if (isPaired) {
-        const pairedScenarios = [
-            `A group of participants was measured on a specific metric before and after an intervention. The mean score before the intervention was ${sampleMean1}, and after the intervention, it was ${sampleMean2}, with standard deviations of ${stdDev1} and ${stdDev2}, respectively. Does this indicate a significant change?`,
-            `Participants underwent two conditions in a study, and the mean scores for Condition 1 and Condition 2 were ${sampleMean1} and ${sampleMean2}, respectively. The standard deviations were ${stdDev1} and ${stdDev2}. Is there a statistically significant difference between the two conditions?`
-        ];
-        description = pairedScenarios[Math.floor(Math.random() * pairedScenarios.length)];
+    // Generate problem description with direction-specific phrasing
+    let problemText = isPaired 
+      ? `A group was measured before and after an intervention. Mean scores are ${sampleMean1} (pre) and ${sampleMean2} (post), SDs ${stdDev1} and ${stdDev2}, n=${sampleSize}.`
+      : `Two groups tested independently. Group A: M=${sampleMean1}, SD=${stdDev1}, n=${sampleSize}; Group B: M=${sampleMean2}, SD=${stdDev2}, n=${sampleSize}.`;
+
+    // Add direction-specific phrasing to the question
+    if (direction === "two-tailed") {
+        problemText += ` Test if there is a significant difference between the two ${isPaired ? 'conditions' : 'groups'}.`;
     } else {
-        const independentScenarios = [
-            `Two groups of participants were tested under similar conditions. Group A had a mean score of ${sampleMean1} with a standard deviation of ${stdDev1}, while Group B had a mean score of ${sampleMean2} with a standard deviation of ${stdDev2}. Is there evidence of a significant difference between the groups?`,
-            `A study compared two distinct groups to determine if there was a difference in their average scores. Group 1 had a mean of ${sampleMean1} with a standard deviation of ${stdDev1}, and Group 2 had a mean of ${sampleMean2} with a standard deviation of ${stdDev2}. Can we conclude there’s a significant difference between the groups?`
-        ];
-        description = independentScenarios[Math.floor(Math.random() * independentScenarios.length)];
+        problemText += ` Test if ${isPaired ? 'post-intervention' : 'Group A'} is ${direction === "greater" ? "greater than" : "less than"} ${isPaired ? 'pre-intervention' : 'Group B'}.`;
     }
 
-    // Add direction of the test
-    if (isOneTailed) {
-        description += ` The study aims to test if the mean of ${isPaired ? 'the post-intervention score' : 'Group A'} is ${direction === "greater" ? "greater than" : "less than"} the mean of ${isPaired ? 'the pre-intervention score' : 'Group B'}.`;
-    } else {
-        description += ` The study aims to test for any significant difference between the two means.`;
-    }
-
-    document.getElementById("problem-description").innerText = description;
+    document.getElementById("problem-description").innerText = problemText;
 }
 
+
+// Initialize the problem on page load
+document.addEventListener("DOMContentLoaded", function() { generateProblem(); });
 
 
 function checkSampleType() {
@@ -232,35 +232,109 @@ function checkHypotheses() {
     }
 }
 
+const tTable = {
+    1: { 0.01: 63.657, 0.05: 12.706 },
+    2: { 0.01: 9.925, 0.05: 4.303 },
+    3: { 0.01: 5.841, 0.05: 3.182 },
+    4: { 0.01: 4.604, 0.05: 2.776 },
+    5: { 0.01: 4.032, 0.05: 2.571 },
+    6: { 0.01: 3.707, 0.05: 2.447 },
+    7: { 0.01: 3.499, 0.05: 2.365 },
+    8: { 0.01: 3.355, 0.05: 2.306 },
+    9: { 0.01: 3.250, 0.05: 2.262 },
+    10: { 0.01: 3.169, 0.05: 2.228 },
+    11: { 0.01: 3.106, 0.05: 2.201 },
+    12: { 0.01: 3.055, 0.05: 2.179 },
+    13: { 0.01: 3.012, 0.05: 2.160 },
+    14: { 0.01: 2.977, 0.05: 2.145 },
+    15: { 0.01: 2.947, 0.05: 2.131 },
+    16: { 0.01: 2.921, 0.05: 2.120 },
+    17: { 0.01: 2.898, 0.05: 2.110 },
+    18: { 0.01: 2.878, 0.05: 2.101 },
+    19: { 0.01: 2.861, 0.05: 2.093 },
+    20: { 0.01: 2.845, 0.05: 2.086 },
+    21: { 0.01: 2.831, 0.05: 2.080 },
+    22: { 0.01: 2.819, 0.05: 2.074 },
+    23: { 0.01: 2.807, 0.05: 2.069 },
+    24: { 0.01: 2.797, 0.05: 2.064 },
+    25: { 0.01: 2.787, 0.05: 2.060 },
+    26: { 0.01: 2.779, 0.05: 2.056 },
+    27: { 0.01: 2.771, 0.05: 2.052 },
+    28: { 0.01: 2.763, 0.05: 2.048 },
+    29: { 0.01: 2.756, 0.05: 2.045 },
+    30: { 0.01: 2.750, 0.05: 2.042 }
+};
+
+function calculateCriticalValue(alpha, degreesOfFreedom) {
+    // Check if the degrees of freedom and alpha level are in the table
+    if (tTable[degreesOfFreedom] && tTable[degreesOfFreedom][alpha]) {
+        return tTable[degreesOfFreedom][alpha];
+    } else {
+        // Handle cases where degrees of freedom exceed the table's range
+        if (degreesOfFreedom > 30) {
+            console.warn("Degrees of freedom exceed table range; using value for df=30 as an approximation.");
+            return tTable[30][alpha];
+        } else {
+            console.error(`Critical value for df=${degreesOfFreedom} and alpha=${alpha} not found in the table.`);
+            return null; // Return null if the value is missing from the table
+        }
+    }
+}
+
+
 function checkTValue() {
     const tValueInput = parseFloat(document.getElementById("t-value-input").value);
-    const correctTValue = parseFloat(testData.tValue);
 
-    if (!isNaN(tValueInput) && tValueInput.toFixed(2) === correctTValue.toFixed(2)) {
+    let correctTValue;
+    if (testData.sampleType === "paired") {
+        const meanDifference = testData.sampleMean1 - testData.sampleMean2;
+
+        if (typeof testData.SD_diff !== 'number' || isNaN(testData.SD_diff)) {
+            document.getElementById("result-step4").innerText = "Error: SD of differences (SD_diff) is missing.";
+            document.getElementById("result-step4").style.color = "red";
+            return;
+        }
+
+        const standardError = testData.SD_diff / Math.sqrt(testData.sampleSize);
+        correctTValue = (meanDifference / standardError).toFixed(2);
+        console.log("Mean Difference:", meanDifference);
+        console.log("Standard Error (Paired):", standardError);
+    } else {
+        const meanDifference = testData.sampleMean1 - testData.sampleMean2;
+        const standardError = Math.sqrt((Math.pow(testData.stdDev1, 2) / testData.sampleSize) + (Math.pow(testData.stdDev2, 2) / testData.sampleSize));
+        correctTValue = (meanDifference / standardError).toFixed(2);
+        console.log("Standard Error (Independent):", standardError);
+    }
+
+    // Enhanced comparison for precision issues
+    if (!isNaN(tValueInput) && Math.abs(tValueInput - correctTValue) < 0.01) {
         document.getElementById("result-step4").innerText = "t-value is correct!";
         document.getElementById("result-step4").style.color = "green";
-        document.getElementById("step-5").style.display = "block"; // Reveal Step 5
+        document.getElementById("step-5").style.display = "block";
     } else {
         document.getElementById("result-step4").innerText = `Incorrect. The correct t-value is ${correctTValue}.`;
         document.getElementById("result-step4").style.color = "red";
     }
 }
 
+
+
 function checkDecision() {
     const decisionInput = document.getElementById("decision-choice").value;
+    
     const correctDecision = Math.abs(testData.tValue) > testData.criticalValue ? "reject" : "accept";
-
+    
     if (decisionInput === correctDecision) {
         document.getElementById("result-step5").innerText = "Decision is correct!";
         document.getElementById("result-step5").style.color = "green";
-        document.getElementById("regenerate-button").style.display = "block"; // Show regenerate button
+        document.getElementById("regenerate-button").style.display = "block";
     } else {
         document.getElementById("result-step5").innerText = `Incorrect. You should ${correctDecision} H₀.`;
         document.getElementById("result-step5").style.color = "red";
     }
 }
 
-
+// Drag and drop functions
 function allowDrop(ev) { ev.preventDefault(); }
 function drag(ev) { ev.dataTransfer.setData("text", ev.target.innerText); }
 function drop(ev) {
@@ -269,8 +343,8 @@ function drop(ev) {
     ev.target.innerText = data;
 }
 
+// Initialize the problem on page load
 document.addEventListener("DOMContentLoaded", function() { generateProblem(); });
-
 </script>
 </body>
 </html>
