@@ -161,10 +161,9 @@ function checkAnswer() {
 
     // Calculate Cohen's d based on sample type
     if (sampleType === 'paired') {
-        cohensD = (meanDifference / stdDevDifference).toFixed(2);
+        cohensD = (meanDifference / (stdDevDifference/Math.sqrt(sampleSize1))).toFixed(2);
     } else {
-        const pooledStdDev = Math.sqrt(((sampleSize1 - 1) * stdDev1 ** 2 + (sampleSize2 - 1) * stdDev2 ** 2) / (sampleSize1 + sampleSize2 - 2));
-        cohensD = ((mean1 - mean2) / pooledStdDev).toFixed(2);
+        cohensD = ((2 * tValue) / Math.sqrt(sampleSize1 + sampleSize2 -2)).toFixed(2);
     }
 
     if (Math.abs(studentCohensD - cohensD) <= 0.01) {
