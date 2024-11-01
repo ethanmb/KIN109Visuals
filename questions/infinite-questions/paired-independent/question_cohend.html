@@ -69,16 +69,13 @@
     <p>(Select the magnitude category that corresponds to the absolute value of Cohen's d.)</p>
     <select id="effect-size-choice">
       <option value="">--Select--</option>
-      <option value="trivial">Trivial Effect </option>
-      <option value="trivial-to-small">Trivial-to-Small </option>
-      <option value="small">Small </option>
-      <option value="small-to-medium">Small-to-Medium </option>
-      <option value="medium">Medium </option>
-      <option value="medium-to-large">Medium-to-Large </option>
-      <option value="large">Large </option>
+      <option value="small">Small effect</option>
+      <option value="medium">Medium effect</option>
+      <option value="large">Large effect</option>
     </select>
     <button onclick="checkEffectSize()">Submit Effect Size</button>
-  </div>
+</div>
+
   
   <p id="feedback"></p>
   <button id="regenerate-button" onclick="generateNewProblem()">Regenerate New Question</button>
@@ -88,44 +85,54 @@
 let sampleType, mean1, mean2, stdDev1, stdDev2, sampleSize1, sampleSize2, meanDifference, stdDevDifference, cohensD;
 
 function generateNewProblem() {
-    // Reset visibility and feedback
-    document.getElementById('sample-type-choice').value = "";
-    document.getElementById('student-cohens-d').value = "";
-    document.getElementById('feedback').innerText = "";
-    document.getElementById('step-2').style.display = 'none';
-    document.getElementById('effect-size-magnitude').style.display = 'none';
-    document.getElementById('regenerate-button').style.display = 'none'; // Hide regenerate button initially
+  // Reset visibility and feedback
+  document.getElementById('sample-type-choice').value = "";
+  document.getElementById('student-cohens-d').value = "";
+  document.getElementById('feedback').innerText = "";
+  document.getElementById('step-2').style.display = 'none';
+  document.getElementById('effect-size-magnitude').style.display = 'none';
+  document.getElementById('regenerate-button').style.display = 'none';
 
-    // Randomly assign sample type and generate data
-    if (Math.random() < 0.5) {
-        sampleType = "paired";
-        sampleSize1 = Math.floor(Math.random() * 10 + 5);
-        meanDifference = (Math.random() * 5).toFixed(2);
-        stdDevDifference = (Math.random() * 2 + 1).toFixed(2);
+  // Randomly assign sample type and generate data
+  if (Math.random() < 0.5) {
+      sampleType = "paired";
+      sampleSize1 = Math.floor(Math.random() * 10 + 5);
+      meanDifference = (Math.random() * 5 - 2.5).toFixed(2); // Allow negative differences
+      stdDevDifference = (Math.random() * 2 + 1).toFixed(2);
 
-        // Paired samples question
-        const pairedScenarios = [
-            `A group of individuals was measured on a certain metric before and after an intervention. The mean difference in scores was ${meanDifference}, with a standard deviation of ${stdDevDifference} for a sample size of ${sampleSize1}. Calculate Cohen's d for the effect size.`,
-            `Participants were assessed in two conditions, and the difference in their scores between Condition 1 and Condition 2 showed a mean of ${meanDifference} and a standard deviation of ${stdDevDifference}, based on a sample of ${sampleSize1} individuals. Calculate Cohen's d to estimate the effect size.`
-        ];
-        document.getElementById('question-text').innerText = pairedScenarios[Math.floor(Math.random() * pairedScenarios.length)];
-    } else {
-        sampleType = "independent";
-        sampleSize1 = Math.floor(Math.random() * 10 + 5);
-        sampleSize2 = Math.floor(Math.random() * 10 + 5);
-        mean1 = (Math.random() * 10 + 70).toFixed(2);
-        mean2 = (Math.random() * 10 + 70).toFixed(2);
-        stdDev1 = (Math.random() * 5 + 1).toFixed(2);
-        stdDev2 = (Math.random() * 5 + 1).toFixed(2);
+      // Calculate t-value for paired samples
+      const standardError = stdDevDifference / Math.sqrt(sampleSize1);
+      const tValue = (meanDifference / standardError).toFixed(2);
 
-        // Independent samples question
-        const independentScenarios = [
-            `Two groups of participants were tested to evaluate an intervention. Group 1 has a mean score of ${mean1} with a standard deviation of ${stdDev1} (n = ${sampleSize1}), and Group 2 has a mean score of ${mean2} with a standard deviation of ${stdDev2} (n = ${sampleSize2}). Calculate Cohen's d for the effect size.`,
-            `In a study comparing two distinct groups, Group A showed a mean of ${mean1} with a standard deviation of ${stdDev1} and a sample size of ${sampleSize1}, while Group B had a mean of ${mean2} with a standard deviation of ${stdDev2} and a sample size of ${sampleSize2}. Determine the Cohen's d effect size for the difference between these groups.`
-        ];
-        document.getElementById('question-text').innerText = independentScenarios[Math.floor(Math.random() * independentScenarios.length)];
-    }
+      // Paired samples question with t-value included
+      const pairedScenarios = [
+          `A group of individuals was measured on a certain metric before and after an intervention. The mean difference in scores was ${meanDifference}, with a standard deviation of ${stdDevDifference} for a sample size of ${sampleSize1}. The calculated t-value for this difference is ${tValue}. Calculate Cohen's d for the effect size.`,
+          `Participants were assessed in two conditions, and the difference in their scores between Condition 1 and Condition 2 showed a mean of ${meanDifference} and a standard deviation of ${stdDevDifference}, based on a sample of ${sampleSize1} individuals. The calculated t-value is ${tValue}. Calculate Cohen's d to estimate the effect size.`
+      ];
+      document.getElementById('question-text').innerText = pairedScenarios[Math.floor(Math.random() * pairedScenarios.length)];
+  } else {
+      sampleType = "independent";
+      sampleSize1 = Math.floor(Math.random() * 10 + 5);
+      sampleSize2 = Math.floor(Math.random() * 10 + 5);
+      mean1 = (Math.random() * 10 + 70).toFixed(2);
+      mean2 = (Math.random() * 10 + 70).toFixed(2);
+      stdDev1 = (Math.random() * 5 + 1).toFixed(2);
+      stdDev2 = (Math.random() * 5 + 1).toFixed(2);
+
+      // Calculate t-value for independent samples
+      const meanDifference = (parseFloat(mean1) - parseFloat(mean2)).toFixed(2);
+      const standardError = Math.sqrt((Math.pow(stdDev1, 2) / sampleSize1) + (Math.pow(stdDev2, 2) / sampleSize2));
+      const tValue = (meanDifference / standardError).toFixed(2);
+
+      // Independent samples question with t-value included
+      const independentScenarios = [
+          `Two groups of participants were tested to evaluate an intervention. Group 1 has a mean score of ${mean1} with a standard deviation of ${stdDev1} (n = ${sampleSize1}), and Group 2 has a mean score of ${mean2} with a standard deviation of ${stdDev2} (n = ${sampleSize2}). The calculated t-value for the difference is ${tValue}. Calculate Cohen's d for the effect size.`,
+          `In a study comparing two distinct groups, Group A showed a mean of ${mean1} with a standard deviation of ${stdDev1} and a sample size of ${sampleSize1}, while Group B had a mean of ${mean2} with a standard deviation of ${stdDev2} and a sample size of ${sampleSize2}. The calculated t-value is ${tValue}. Determine the Cohen's d effect size for the difference between these groups.`
+      ];
+      document.getElementById('question-text').innerText = independentScenarios[Math.floor(Math.random() * independentScenarios.length)];
+  }
 }
+
 
 
 function checkSampleType() {
@@ -172,42 +179,34 @@ function checkAnswer() {
 function checkEffectSize() {
   let selectedValue = document.getElementById('effect-size-choice').value;
   if (selectedValue === "") {
-    document.getElementById('feedback').innerText = "Please select an effect size category.";
-    document.getElementById('feedback').style.color = 'red';
-    return;
+      document.getElementById('feedback').innerText = "Please select an effect size category.";
+      document.getElementById('feedback').style.color = 'red';
+      return;
   }
 
   const absCohensD = Math.abs(cohensD);
- 
-  // Determine effect size category
 
+  // Determine effect size category based on Cohen's conventional thresholds
   let magnitudeCategory = "";
-  
-  if (absCohensD < 0.1) {
-    magnitudeCategory = "trivial";
-  } else if (absCohensD >= 0.1 && absCohensD <= 0.14) {
-    magnitudeCategory = "trivial-to-small";
-  } else if (absCohensD >= 0.15 && absCohensD <= 0.25) {
-    magnitudeCategory = "small";
-  } else if (absCohensD >= 0.26 && absCohensD <= 0.44) {
-    magnitudeCategory = "small-to-medium";
-  } else if (absCohensD >= 0.45 && absCohensD <= 0.55) {
-    magnitudeCategory = "medium";
-  } else if (absCohensD >= 0.56 && absCohensD <= 0.75) {
-    magnitudeCategory = "medium-to-large";
-  } else {
-    magnitudeCategory = "large";
+  if (absCohensD < 0.5 && absCohensD >= 0.2) {
+      magnitudeCategory = "small";
+  } else if (absCohensD >= 0.5 && absCohensD < 0.8) {
+      magnitudeCategory = "medium";
+  } else if (absCohensD >= 0.8) {
+      magnitudeCategory = "large";
   }
 
+  // Check if the selected value matches the calculated magnitude category
   if (selectedValue === magnitudeCategory) {
-    document.getElementById('feedback').innerText = "Correct! The effect size magnitude is " + magnitudeCategory + " effect.";
-    document.getElementById('feedback').style.color = 'green';
-    document.getElementById('regenerate-button').style.display = 'block'; // Show regenerate button
+      document.getElementById('feedback').innerText = `Correct! The effect size magnitude is a ${magnitudeCategory} effect.`;
+      document.getElementById('feedback').style.color = 'green';
+      document.getElementById('regenerate-button').style.display = 'block'; // Show regenerate button
   } else {
-    document.getElementById('feedback').innerText = `Incorrect. The effect size magnitude is a ${magnitudeCategory} effect.`;
-    document.getElementById('feedback').style.color = 'red';
+      document.getElementById('feedback').innerText = `Incorrect. The effect size magnitude is a ${magnitudeCategory} effect.`;
+      document.getElementById('feedback').style.color = 'red';
   }
 }
+
 
 generateNewProblem(); // Initialize the first problem on page load
 </script>
