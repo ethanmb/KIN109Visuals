@@ -79,7 +79,7 @@
         <p>Decision: <select id="decision-choice">
             <option value="">--Select--</option>
             <option value="reject">Reject H₀</option>
-            <option value="accept">Accept H₀</option>
+            <option value="accept">Do not reject H₀</option>
         </select></p>
         <button onclick="checkDecision()">Submit Decision</button>
         <div id="result-step5" class="result"></div>
@@ -174,7 +174,7 @@ function generateProblem() {
     if (direction === "two-tailed") {
         problemText += ` Test if there is a significant difference between the two ${isPaired ? 'conditions' : 'groups'}.`;
     } else {
-        problemText += ` Test if ${isPaired ? 'post-intervention' : 'Group A'} is ${direction === "greater" ? "greater than" : "less than"} ${isPaired ? 'pre-intervention' : 'Group B'}.`;
+        problemText += ` Test if ${isPaired ? 'post-intervention' : 'Group A'} is ${direction === "greater" ? "greater than (one-tailed)" : "less than (one-tiled)"} ${isPaired ? 'pre-intervention' : 'Group B'}.`;
     }
 
     document.getElementById("problem-description").innerText = problemText;
