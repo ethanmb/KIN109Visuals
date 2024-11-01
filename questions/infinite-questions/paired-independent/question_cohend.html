@@ -163,7 +163,7 @@ function checkAnswer() {
     if (sampleType === 'paired') {
         cohensD = (meanDifference / (stdDevDifference/Math.sqrt(sampleSize1))).toFixed(2);
     } else {
-        cohensD = ((2 * tValue) / Math.sqrt(sampleSize1 + sampleSize2 -2)).toFixed(2);
+        cohensD = ((2 * tValue) / Math.sqrt(sampleSize1 + sampleSize2 - 2)).toFixed(2);
     }
 
     if (Math.abs(studentCohensD - cohensD) <= 0.01) {
