@@ -69,13 +69,16 @@
     <p>(Select the magnitude category that corresponds to the absolute value of Cohen's d.)</p>
     <select id="effect-size-choice">
       <option value="">--Select--</option>
-      <option value="small">Small effect</option>
-      <option value="medium">Medium effect</option>
-      <option value="large">Large effect</option>
+      <option value="trivial">Trivial Effect </option>
+      <option value="trivial-to-small">Trivial-to-Small </option>
+      <option value="small">Small </option>
+      <option value="small-to-medium">Small-to-Medium </option>
+      <option value="medium">Medium </option>
+      <option value="medium-to-large">Medium-to-Large </option>
+      <option value="large">Large </option>
     </select>
     <button onclick="checkEffectSize()">Submit Effect Size</button>
-</div>
-
+  </div>
   
   <p id="feedback"></p>
   <button id="regenerate-button" onclick="generateNewProblem()">Regenerate New Question</button>
@@ -179,34 +182,42 @@ function checkAnswer() {
 function checkEffectSize() {
   let selectedValue = document.getElementById('effect-size-choice').value;
   if (selectedValue === "") {
-      document.getElementById('feedback').innerText = "Please select an effect size category.";
-      document.getElementById('feedback').style.color = 'red';
-      return;
+    document.getElementById('feedback').innerText = "Please select an effect size category.";
+    document.getElementById('feedback').style.color = 'red';
+    return;
   }
 
   const absCohensD = Math.abs(cohensD);
+ 
+  // Determine effect size category
 
-  // Determine effect size category based on Cohen's conventional thresholds
   let magnitudeCategory = "";
-  if (absCohensD < 0.5 && absCohensD >= 0.2) {
-      magnitudeCategory = "small";
-  } else if (absCohensD >= 0.5 && absCohensD < 0.8) {
-      magnitudeCategory = "medium";
-  } else if (absCohensD >= 0.8) {
-      magnitudeCategory = "large";
+  
+  if (absCohensD < 0.1) {
+    magnitudeCategory = "trivial";
+  } else if (absCohensD >= 0.1 && absCohensD <= 0.14) {
+    magnitudeCategory = "trivial-to-small";
+  } else if (absCohensD >= 0.15 && absCohensD <= 0.25) {
+    magnitudeCategory = "small";
+  } else if (absCohensD >= 0.26 && absCohensD <= 0.44) {
+    magnitudeCategory = "small-to-medium";
+  } else if (absCohensD >= 0.45 && absCohensD <= 0.55) {
+    magnitudeCategory = "medium";
+  } else if (absCohensD >= 0.56 && absCohensD <= 0.75) {
+    magnitudeCategory = "medium-to-large";
+  } else {
+    magnitudeCategory = "large";
   }
 
-  // Check if the selected value matches the calculated magnitude category
   if (selectedValue === magnitudeCategory) {
-      document.getElementById('feedback').innerText = `Correct! The effect size magnitude is a ${magnitudeCategory} effect.`;
-      document.getElementById('feedback').style.color = 'green';
-      document.getElementById('regenerate-button').style.display = 'block'; // Show regenerate button
+    document.getElementById('feedback').innerText = "Correct! The effect size magnitude is " + magnitudeCategory + " effect.";
+    document.getElementById('feedback').style.color = 'green';
+    document.getElementById('regenerate-button').style.display = 'block'; // Show regenerate button
   } else {
-      document.getElementById('feedback').innerText = `Incorrect. The effect size magnitude is a ${magnitudeCategory} effect.`;
-      document.getElementById('feedback').style.color = 'red';
+    document.getElementById('feedback').innerText = `Incorrect. The effect size magnitude is a ${magnitudeCategory} effect.`;
+    document.getElementById('feedback').style.color = 'red';
   }
 }
-
 
 generateNewProblem(); // Initialize the first problem on page load
 </script>
