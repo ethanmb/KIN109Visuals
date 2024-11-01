@@ -124,20 +124,36 @@ function generateProblem() {
     let stdDev2 = (Math.random() * 2 + 1).toFixed(2);
     let degreesOfFreedom = sampleSize - 1;
 
-    // Initialize `SD_diff` for paired samples and calculate `tValue`
-    let SD_diff, tValue;
+    let tValue, problemText;
 
     if (isPaired) {
-        // Estimate SD_diff for paired samples; ideally, you’d calculate from the actual paired differences
-        SD_diff = Math.sqrt(((stdDev1 ** 2) + (stdDev2 ** 2)) / 2).toFixed(2);  
+        // Generate random difference scores and calculate mean and SD of differences
+        let differences = Array.from({ length: sampleSize }, () => (Math.random() * 5 - 2.5).toFixed(2));
+        const meanDifference = differences.reduce((acc, val) => acc + parseFloat(val), 0) / differences.length;
+        const varianceDifference = differences.reduce((acc, val) => acc + Math.pow(parseFloat(val) - meanDifference, 2), 0) / (differences.length - 1);
+        let SD_diff = Math.sqrt(varianceDifference).toFixed(2);
 
-        const meanDifference = sampleMean1 - sampleMean2;
         const standardError = SD_diff / Math.sqrt(sampleSize);
         tValue = (meanDifference / standardError).toFixed(2);
 
         document.getElementById("h0-text").innerHTML = `H₀: μ<sub>D</sub> <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0`;
         document.getElementById("h1-text").innerHTML = `H₁: μ<sub>D</sub> <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0`;
 
+        // Update testData for paired sample
+        testData = {
+            sampleType: "paired",
+            tailType: isOneTailed ? "one-tailed" : "two-tailed",
+            direction: direction,
+            alpha: alpha,
+            sampleSize: sampleSize,
+            meanDifference: parseFloat(meanDifference.toFixed(2)),
+            SD_diff: parseFloat(SD_diff),
+            tValue: parseFloat(tValue),
+            criticalValue: calculateCriticalValue(alpha, degreesOfFreedom)
+        };
+
+        // Define problem text for paired samples
+        problemText = `A group was measured before and after an intervention. The mean difference score is ${meanDifference.toFixed(2)}, with an SD of ${SD_diff}, n=${sampleSize}.`;
     } else {
         // Independent samples calculation
         const meanDifference = sampleMean1 - sampleMean2;
@@ -146,29 +162,26 @@ function generateProblem() {
 
         document.getElementById("h0-text").innerHTML = `H₀: μ<sub>1</sub> <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub>`;
         document.getElementById("h1-text").innerHTML = `H₁: μ<sub>1</sub> <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub>`;
+
+        // Update testData for independent sample
+        testData = {
+            sampleType: "independent",
+            tailType: isOneTailed ? "one-tailed" : "two-tailed",
+            direction: direction,
+            alpha: alpha,
+            sampleSize: sampleSize,
+            sampleMean1: sampleMean1,
+            sampleMean2: sampleMean2,
+            stdDev1: stdDev1,
+            stdDev2: stdDev2,
+            degreesOfFreedom: degreesOfFreedom,
+            tValue: parseFloat(tValue),
+            criticalValue: calculateCriticalValue(alpha, degreesOfFreedom)
+        };
+
+        // Define problem text for independent samples
+        problemText = `Two groups tested independently. Group A: M=${sampleMean1}, SD=${stdDev1}, n=${sampleSize}; Group B: M=${sampleMean2}, SD=${stdDev2}, n=${sampleSize}.`;
     }
-
-    // Store values in `testData` object for use in other functions
-    testData = {
-        sampleType: isPaired ? "paired" : "independent",
-        tailType: isOneTailed ? "one-tailed" : "two-tailed",
-        direction: direction,
-        alpha: alpha,
-        sampleSize: sampleSize,
-        sampleMean1: sampleMean1,
-        sampleMean2: sampleMean2,
-        stdDev1: stdDev1,
-        stdDev2: stdDev2,
-        degreesOfFreedom: degreesOfFreedom,
-        SD_diff: isPaired ? parseFloat(SD_diff) : null,  // Only set SD_diff for paired samples
-        tValue: parseFloat(tValue),
-        criticalValue: calculateCriticalValue(alpha, degreesOfFreedom)  // Critical value function explained below
-    };
-
-    // Generate problem description with direction-specific phrasing
-    let problemText = isPaired 
-      ? `A group was measured before and after an intervention. Mean scores are ${sampleMean1} (pre) and ${sampleMean2} (post), SDs ${stdDev1} and ${stdDev2}, n=${sampleSize}.`
-      : `Two groups tested independently. Group A: M=${sampleMean1}, SD=${stdDev1}, n=${sampleSize}; Group B: M=${sampleMean2}, SD=${stdDev2}, n=${sampleSize}.`;
 
     // Add direction-specific phrasing to the question
     if (direction === "two-tailed") {
@@ -177,8 +190,10 @@ function generateProblem() {
         problemText += ` Test if ${isPaired ? 'post-intervention' : 'Group A'} is ${direction === "greater" ? "greater than" : "less than"} ${isPaired ? 'pre-intervention' : 'Group B'}.`;
     }
 
+    // Display the problem description
     document.getElementById("problem-description").innerText = problemText;
 }
+
 
 
 // Initialize the problem on page load
@@ -287,26 +302,15 @@ function checkTValue() {
 
     let correctTValue;
     if (testData.sampleType === "paired") {
-        const meanDifference = testData.sampleMean1 - testData.sampleMean2;
-
-        if (typeof testData.SD_diff !== 'number' || isNaN(testData.SD_diff)) {
-            document.getElementById("result-step4").innerText = "Error: SD of differences (SD_diff) is missing.";
-            document.getElementById("result-step4").style.color = "red";
-            return;
-        }
-
+        const meanDifference = testData.meanDifference;
         const standardError = testData.SD_diff / Math.sqrt(testData.sampleSize);
         correctTValue = (meanDifference / standardError).toFixed(2);
-        console.log("Mean Difference:", meanDifference);
-        console.log("Standard Error (Paired):", standardError);
     } else {
         const meanDifference = testData.sampleMean1 - testData.sampleMean2;
         const standardError = Math.sqrt((Math.pow(testData.stdDev1, 2) / testData.sampleSize) + (Math.pow(testData.stdDev2, 2) / testData.sampleSize));
         correctTValue = (meanDifference / standardError).toFixed(2);
-        console.log("Standard Error (Independent):", standardError);
     }
 
-    // Enhanced comparison for precision issues
     if (!isNaN(tValueInput) && Math.abs(tValueInput - correctTValue) < 0.01) {
         document.getElementById("result-step4").innerText = "t-value is correct!";
         document.getElementById("result-step4").style.color = "green";
@@ -316,6 +320,7 @@ function checkTValue() {
         document.getElementById("result-step4").style.color = "red";
     }
 }
+
 
 
 
