@@ -85,56 +85,57 @@
 </div>
 
 <script>
-let sampleType, mean1, mean2, stdDev1, stdDev2, sampleSize1, sampleSize2, meanDifference, stdDevDifference, cohensD;
+  let sampleType, mean1, mean2, stdDev1, stdDev2, sampleSize1, sampleSize2, meanDifference, stdDevDifference, cohensD, tValue;
 
-function generateNewProblem() {
-  // Reset visibility and feedback
-  document.getElementById('sample-type-choice').value = "";
-  document.getElementById('student-cohens-d').value = "";
-  document.getElementById('feedback').innerText = "";
-  document.getElementById('step-2').style.display = 'none';
-  document.getElementById('effect-size-magnitude').style.display = 'none';
-  document.getElementById('regenerate-button').style.display = 'none';
-
-  // Randomly assign sample type and generate data
-  if (Math.random() < 0.5) {
-      sampleType = "paired";
-      sampleSize1 = Math.floor(Math.random() * 10 + 5);
-      meanDifference = (Math.random() * 5 - 2.5).toFixed(2); // Allow negative differences
-      stdDevDifference = (Math.random() * 2 + 1).toFixed(2);
-
-      // Calculate t-value for paired samples
-      const standardError = stdDevDifference / Math.sqrt(sampleSize1);
-      const tValue = (meanDifference / standardError).toFixed(2);
-
-      // Paired samples question with t-value included
-      const pairedScenarios = [
-          `A group of individuals was measured on a certain metric before and after an intervention. The mean difference in scores was ${meanDifference}, with a standard deviation of ${stdDevDifference} for a sample size of ${sampleSize1}. The calculated t-value for this difference is ${tValue}. Calculate Cohen's d for the effect size.`,
-          `Participants were assessed in two conditions, and the difference in their scores between Condition 1 and Condition 2 showed a mean of ${meanDifference} and a standard deviation of ${stdDevDifference}, based on a sample of ${sampleSize1} individuals. The calculated t-value is ${tValue}. Calculate Cohen's d to estimate the effect size.`
-      ];
-      document.getElementById('question-text').innerText = pairedScenarios[Math.floor(Math.random() * pairedScenarios.length)];
-  } else {
-      sampleType = "independent";
-      sampleSize1 = Math.floor(Math.random() * 10 + 5);
-      sampleSize2 = Math.floor(Math.random() * 10 + 5);
-      mean1 = (Math.random() * 10 + 70).toFixed(2);
-      mean2 = (Math.random() * 10 + 70).toFixed(2);
-      stdDev1 = (Math.random() * 5 + 1).toFixed(2);
-      stdDev2 = (Math.random() * 5 + 1).toFixed(2);
-
-      // Calculate t-value for independent samples
-      const meanDifference = (parseFloat(mean1) - parseFloat(mean2)).toFixed(2);
-      const standardError = Math.sqrt((Math.pow(stdDev1, 2) / sampleSize1) + (Math.pow(stdDev2, 2) / sampleSize2));
-      const tValue = (meanDifference / standardError).toFixed(2);
-
-      // Independent samples question with t-value included
-      const independentScenarios = [
-          `Two groups of participants were tested to evaluate an intervention. Group 1 has a mean score of ${mean1} with a standard deviation of ${stdDev1} (n = ${sampleSize1}), and Group 2 has a mean score of ${mean2} with a standard deviation of ${stdDev2} (n = ${sampleSize2}). The calculated t-value for the difference is ${tValue}. Calculate Cohen's d for the effect size.`,
-          `In a study comparing two distinct groups, Group A showed a mean of ${mean1} with a standard deviation of ${stdDev1} and a sample size of ${sampleSize1}, while Group B had a mean of ${mean2} with a standard deviation of ${stdDev2} and a sample size of ${sampleSize2}. The calculated t-value is ${tValue}. Determine the Cohen's d effect size for the difference between these groups.`
-      ];
-      document.getElementById('question-text').innerText = independentScenarios[Math.floor(Math.random() * independentScenarios.length)];
+  function generateNewProblem() {
+    // Reset visibility and feedback
+    document.getElementById('sample-type-choice').value = "";
+    document.getElementById('student-cohens-d').value = "";
+    document.getElementById('feedback').innerText = "";
+    document.getElementById('step-2').style.display = 'none';
+    document.getElementById('effect-size-magnitude').style.display = 'none';
+    document.getElementById('regenerate-button').style.display = 'none';
+  
+    // Randomly assign sample type and generate data
+    if (Math.random() < 0.5) {
+        sampleType = "paired";
+        sampleSize1 = Math.floor(Math.random() * 10 + 5);
+        meanDifference = (Math.random() * 5 - 2.5).toFixed(2); // Allow negative differences
+        stdDevDifference = (Math.random() * 2 + 1).toFixed(2);
+  
+        // Calculate t-value for paired samples
+        const standardError = stdDevDifference / Math.sqrt(sampleSize1);
+        tValue = (meanDifference / standardError).toFixed(2);
+  
+        // Paired samples question with t-value included
+        const pairedScenarios = [
+            `A group of individuals was measured on a certain metric before and after an intervention. The mean difference in scores was ${meanDifference}, with a standard deviation of ${stdDevDifference} for a sample size of ${sampleSize1}. The calculated t-value for this difference is ${tValue}. Calculate Cohen's d for the effect size.`,
+            `Participants were assessed in two conditions, and the difference in their scores between Condition 1 and Condition 2 showed a mean of ${meanDifference} and a standard deviation of ${stdDevDifference}, based on a sample of ${sampleSize1} individuals. The calculated t-value is ${tValue}. Calculate Cohen's d to estimate the effect size.`
+        ];
+        document.getElementById('question-text').innerText = pairedScenarios[Math.floor(Math.random() * pairedScenarios.length)];
+    } else {
+        sampleType = "independent";
+        sampleSize1 = Math.floor(Math.random() * 10 + 5);
+        sampleSize2 = Math.floor(Math.random() * 10 + 5);
+        mean1 = (Math.random() * 10 + 70).toFixed(2);
+        mean2 = (Math.random() * 10 + 70).toFixed(2);
+        stdDev1 = (Math.random() * 5 + 1).toFixed(2);
+        stdDev2 = (Math.random() * 5 + 1).toFixed(2);
+  
+        // Calculate t-value for independent samples
+        const meanDifference = (parseFloat(mean1) - parseFloat(mean2)).toFixed(2);
+        const standardError = Math.sqrt((Math.pow(stdDev1, 2) / sampleSize1) + (Math.pow(stdDev2, 2) / sampleSize2));
+        tValue = (meanDifference / standardError).toFixed(2);
+  
+        // Independent samples question with t-value included
+        const independentScenarios = [
+            `Two groups of participants were tested to evaluate an intervention. Group 1 has a mean score of ${mean1} with a standard deviation of ${stdDev1} (n = ${sampleSize1}), and Group 2 has a mean score of ${mean2} with a standard deviation of ${stdDev2} (n = ${sampleSize2}). The calculated t-value for the difference is ${tValue}. Calculate Cohen's d for the effect size.`,
+            `In a study comparing two distinct groups, Group A showed a mean of ${mean1} with a standard deviation of ${stdDev1} and a sample size of ${sampleSize1}, while Group B had a mean of ${mean2} with a standard deviation of ${stdDev2} and a sample size of ${sampleSize2}. The calculated t-value is ${tValue}. Determine the Cohen's d effect size for the difference between these groups.`
+        ];
+        document.getElementById('question-text').innerText = independentScenarios[Math.floor(Math.random() * independentScenarios.length)];
+    }
   }
-}
+  
 
 
 
@@ -152,30 +153,31 @@ function checkSampleType() {
 }
 
 function checkAnswer() {
-    let studentCohensD = parseFloat(document.getElementById('student-cohens-d').value);
-    if (isNaN(studentCohensD)) {
-        document.getElementById('feedback').innerText = "Please enter a value for Cohen's d.";
-        document.getElementById('feedback').style.color = 'red';
-        return;
-    }
+  let studentCohensD = parseFloat(document.getElementById('student-cohens-d').value);
+  if (isNaN(studentCohensD)) {
+      document.getElementById('feedback').innerText = "Please enter a value for Cohen's d.";
+      document.getElementById('feedback').style.color = 'red';
+      return;
+  }
 
-    // Calculate Cohen's d based on sample type
-    if (sampleType === 'paired') {
-        cohensD = (meanDifference / (stdDevDifference/Math.sqrt(sampleSize1))).toFixed(2);
-    } else {
-        cohensD = ((2 * tValue) / Math.sqrt(sampleSize1 + sampleSize2 - 2)).toFixed(2);
-    }
+  // Calculate Cohen's d based on sample type
+  if (sampleType === 'paired') {
+      cohensD = (meanDifference / stdDevDifference).toFixed(2); // Corrected calculation
+  } else {
+      cohensD = ((2 * tValue) / Math.sqrt(sampleSize1 + sampleSize2 - 2)).toFixed(2);
+  }
 
-    if (Math.abs(studentCohensD - cohensD) <= 0.01) {
-        document.getElementById('feedback').innerText = "Correct! Cohen's d is " + cohensD;
-        document.getElementById('feedback').style.color = 'green';
-        document.getElementById('effect-size-magnitude').style.display = 'block';
-    } else {
-        document.getElementById('feedback').innerText = `Incorrect. The correct Cohen's d is ${cohensD}. Please proceed to the next step.`;
-        document.getElementById('feedback').style.color = 'red';
-        document.getElementById('effect-size-magnitude').style.display = 'block'; // Show next step
-    }
+  if (Math.abs(studentCohensD - cohensD) <= 0.01) {
+      document.getElementById('feedback').innerText = "Correct! Cohen's d is " + cohensD;
+      document.getElementById('feedback').style.color = 'green';
+      document.getElementById('effect-size-magnitude').style.display = 'block';
+  } else {
+      document.getElementById('feedback').innerText = `Incorrect. The correct Cohen's d is ${cohensD}. Please proceed to the next step.`;
+      document.getElementById('feedback').style.color = 'red';
+      document.getElementById('effect-size-magnitude').style.display = 'block'; // Show next step
+  }
 }
+
 
 
 function checkEffectSize() {
