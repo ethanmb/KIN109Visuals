@@ -101,25 +101,23 @@
 <script>
 let testData = {};
 
-// Function to calculate degrees of freedom based on sample type
 function calculateDegreesOfFreedom(sampleType) {
     if (sampleType === "paired") {
-        // For paired samples, df = n - 1
-        return testData.sampleSize - 1; 
+        return testData.sampleSize - 1; // For paired samples
     } else if (sampleType === "independent") {
-        // For independent samples, df = n1 + n2 - 2
-        return testData.sampleSize * 2 - 2; // Removed the extra '/' character
+        return (testData.sampleSize * 2) - 2; // For independent samples, assuming equal sample sizes
     }
     return 0; // Default value in case of error
-} 
+}
+
   
-// Function to calculate the critical t-value based on the sample size and alpha level
 function calculateCriticalT(alpha, sampleType, tailType) {
     if (!testData.sampleSize) {
         console.error("Sample size is not defined.");
-        return;
+        return null;
     }
-  const degreesOfFreedom = calculateDegreesOfFreedom(sampleType);
+
+    const degreesOfFreedom = calculateDegreesOfFreedom(sampleType);
     const tTable = {
         1: { 0.05: { oneTailed: 6.314, twoTailed: 12.706 } },
         2: { 0.05: { oneTailed: 2.920, twoTailed: 4.303 } },
@@ -174,17 +172,18 @@ function calculateCriticalT(alpha, sampleType, tailType) {
     };
 
     if (tTable[degreesOfFreedom]) {
-        return tailType === "one-tailed" ? tTable[degreesOfFreedom][alpha].oneTailed : tTable[degreesOfFreedom][alpha].twoTailed;
+        return tailType === "one-tailed" 
+            ? tTable[degreesOfFreedom][alpha].oneTailed 
+            : tTable[degreesOfFreedom][alpha].twoTailed;
     } else {
         console.error("Degrees of freedom not found in the t-table.");
         return null;
     }
-    }
-    return null; // Or handle an error case appropriately
 }
 
+
 function generateProblem() {
-    // Reset question input fields and feedback messages
+    // Reset all question input fields and feedback messages
     document.getElementById("sample-type-choice").value = "";
     document.getElementById("tail-type-choice").value = "";
     document.getElementById("h0-symbol-drop").innerText = "[Drop Here]";
@@ -196,41 +195,43 @@ function generateProblem() {
     document.getElementById("result-step3").innerText = "";
     document.getElementById("result-step4").innerText = "";
     document.getElementById("result-step5").innerText = "";
+
+    // Ensure all relevant steps are initially hidden, except the first one
     document.getElementById("step-1").style.display = "block";
     document.getElementById("step-2").style.display = "none";
     document.getElementById("step-3").style.display = "none";
     document.getElementById("step-4").style.display = "none";
     document.getElementById("step-5").style.display = "none";
+    document.getElementById("step-6").style.display = "none";
     document.getElementById("regenerate-button").style.display = "none";
 
-    // Generate random data for the new problem
+    // Generate random problem details
     let isPaired = Math.random() < 0.5;
     let isOneTailed = Math.random() < 0.5;
     let direction = isOneTailed ? (Math.random() < 0.5 ? "greater" : "less") : "two-tailed";
     let alpha = 0.05;
-    let sampleSize = Math.floor(Math.random() * 10 + 5);
+    let sampleSize = Math.floor(Math.random() * 10 + 5); // Random sample size between 5 and 15
     let sampleMean1 = (Math.random() * 5 + 10).toFixed(2);
     let sampleMean2 = (Math.random() * 5 + 10).toFixed(2);
     let stdDev1 = (Math.random() * 2 + 1).toFixed(2);
     let stdDev2 = (Math.random() * 2 + 1).toFixed(2);
-  
-    
-    let tValue, problemText;
+    let problemText;
 
+    console.log("Generating problem...");
     if (isPaired) {
-        // Generate random difference scores and calculate mean and SD of differences
+        // Generate paired sample problem data
         let differences = Array.from({ length: sampleSize }, () => (Math.random() * 5 - 2.5).toFixed(2));
         const meanDifference = differences.reduce((acc, val) => acc + parseFloat(val), 0) / differences.length;
         const varianceDifference = differences.reduce((acc, val) => acc + Math.pow(parseFloat(val) - meanDifference, 2), 0) / (differences.length - 1);
         let SD_diff = Math.sqrt(varianceDifference).toFixed(2);
+        let standardError = (SD_diff / Math.sqrt(sampleSize)).toFixed(2);
+        let tValue = (meanDifference / standardError).toFixed(2);
 
-        const standardError = SD_diff / Math.sqrt(sampleSize);
-        tValue = (meanDifference / standardError).toFixed(2);
+        console.log("Paired sample data generated.");
 
         document.getElementById("h0-text").innerHTML = `H₀: μ<sub>D</sub> <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0`;
         document.getElementById("h1-text").innerHTML = `H₁: μ<sub>D</sub> <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0`;
 
-        // Update testData for paired sample
         testData = {
             sampleType: "paired",
             tailType: isOneTailed ? "one-tailed" : "two-tailed",
@@ -240,51 +241,56 @@ function generateProblem() {
             meanDifference: parseFloat(meanDifference.toFixed(2)),
             SD_diff: parseFloat(SD_diff),
             tValue: parseFloat(tValue),
-         degreesOfFreedom: sampleSize - 1,
-            criticalValue: calculateCriticalT(alpha, sampleType, tailType)
+            degreesOfFreedom: sampleSize - 1,
+            criticalValue: calculateCriticalT(alpha, "paired", isOneTailed ? "one-tailed" : "two-tailed")
         };
 
-        // Define problem text for paired samples
         problemText = `A group was measured before and after an intervention. The mean difference score is ${meanDifference.toFixed(2)}, with an SD of ${SD_diff}, n=${sampleSize}.`;
     } else {
-        // Independent samples calculation
-        const meanDifference = sampleMean1 - sampleMean2;
-        const standardError = Math.sqrt((Math.pow(stdDev1, 2) / sampleSize) + (Math.pow(stdDev2, 2) / sampleSize));
-        tValue = (meanDifference / standardError).toFixed(2);
+        // Generate independent sample problem data
+        let meanDifference = sampleMean1 - sampleMean2;
+        let standardError = Math.sqrt((Math.pow(stdDev1, 2) / sampleSize) + (Math.pow(stdDev2, 2) / sampleSize)).toFixed(2);
+        let tValue = (meanDifference / standardError).toFixed(2);
+
+        console.log("Independent sample data generated.");
 
         document.getElementById("h0-text").innerHTML = `H₀: μ<sub>1</sub> <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub>`;
         document.getElementById("h1-text").innerHTML = `H₁: μ<sub>1</sub> <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ<sub>2</sub>`;
 
-        // Update testData for independent sample
         testData = {
             sampleType: "independent",
             tailType: isOneTailed ? "one-tailed" : "two-tailed",
             direction: direction,
             alpha: alpha,
             sampleSize: sampleSize,
-            sampleMean1: sampleMean1,
-            sampleMean2: sampleMean2,
-            stdDev1: stdDev1,
-            stdDev2: stdDev2,
-            degreesOfFreedom: (2 * sampleSize) - 2,
+            sampleMean1: parseFloat(sampleMean1),
+            sampleMean2: parseFloat(sampleMean2),
+            stdDev1: parseFloat(stdDev1),
+            stdDev2: parseFloat(stdDev2),
+            degreesOfFreedom: (sampleSize * 2) - 2,
             tValue: parseFloat(tValue),
-            criticalValue: calculateCriticalT(alpha, degreesOfFreedom, isOneTailed)
+            criticalValue: calculateCriticalT(alpha, "independent", isOneTailed ? "one-tailed" : "two-tailed")
         };
 
-        // Define problem text for independent samples
-        problemText = `Two groups tested independently. Group A: M=${sampleMean1}, SD=${stdDev1}, n=${sampleSize}; Group B: M=${sampleMean2}, SD=${stdDev2}, n=${sampleSize}.`;
+        problemText = `Two groups were tested independently. Group A: M=${sampleMean1}, SD=${stdDev1}, n=${sampleSize}; Group B: M=${sampleMean2}, SD=${stdDev2}, n=${sampleSize}.`;
     }
 
-    // Add direction-specific phrasing to the question
     if (direction === "two-tailed") {
         problemText += ` Test if there is a significant difference between the two ${isPaired ? 'conditions' : 'groups'}.`;
     } else {
-        problemText += ` Test if ${isPaired ? 'post-intervention' : 'Group A'} is ${direction === "greater" ? "greater than (one-tailed)" : "less than (one-tailed)"} ${isPaired ? 'pre-intervention' : 'Group B'}.`;
+        problemText += ` Test if ${isPaired ? 'post-intervention' : 'Group A'} is ${direction === "greater" ? "greater than" : "less than"} ${isPaired ? 'pre-intervention' : 'Group B'}.`;
     }
 
-    // Display the problem description
-    document.getElementById("problem-description").innerText = problemText;
+    // Display the problem text on the page
+    if (document.getElementById("problem-description")) {
+        document.getElementById("problem-description").innerText = problemText;
+        console.log("Problem displayed successfully.");
+    } else {
+        console.error("Element with id 'problem-description' not found.");
+    }
 }
+
+
 
 
 
@@ -345,16 +351,37 @@ function checkCriticalValue() {
     const tailType = document.getElementById("tail-type-choice").value;
 
     const criticalValue = calculateCriticalT(alpha, sampleType, tailType);
-    document.getElementById("result-step4").innerText = `Critical Value: ${criticalValue}`;
+
+    if (criticalValue !== null) {
+        const userValue = parseFloat(document.getElementById("critical-value-input").value);
+        const isCorrect = Math.abs(userValue - criticalValue) < 0.01; // Adjust the tolerance as needed
+        const resultElement = document.getElementById("result-step4");
+
+        if (isCorrect) {
+            resultElement.textContent = "Correct!";
+            resultElement.style.color = "green"; // Display text in green if correct
+
+            // Reveal the next step when the answer is correct
+            document.getElementById("step-5").style.display = "block";
+        } else {
+            resultElement.textContent = `Incorrect. The correct critical value is ${criticalValue.toFixed(2)}.`;
+            resultElement.style.color = "red"; // Display text in red if incorrect
+        }
+    } else {
+        document.getElementById("result-step4").innerText = "Critical value could not be determined. Please check your input.";
+        document.getElementById("result-step4").style.color = "red"; // Display error text in red
+    }
 }
 
-    document.getElementById("result-step4").textContent = isCorrect ? "Correct!" : "Incorrect critical value. Try again.";
-}
+
+
+
     
 function checkTValue() {
     const tValueInput = parseFloat(document.getElementById("t-value-input").value);
-
+    const resultElement = document.getElementById("result-step5");
     let correctTValue;
+
     if (testData.sampleType === "paired") {
         const meanDifference = testData.meanDifference;
         const standardError = testData.SD_diff / Math.sqrt(testData.sampleSize);
@@ -366,30 +393,44 @@ function checkTValue() {
     }
 
     if (!isNaN(tValueInput) && Math.abs(tValueInput - correctTValue) < 0.01) {
-        document.getElementById("result-step4").innerText = "t-value is correct!";
-        document.getElementById("result-step4").style.color = "green";
-        document.getElementById("step-5").style.display = "block";
+        resultElement.innerText = "t-value is correct!";
+        resultElement.style.color = "green"; // Display text in green if correct
+
+        // Reveal Step 6 when the t-value is correct
+        document.getElementById("step-6").style.display = "block";
     } else {
-        document.getElementById("result-step4").innerText = `Incorrect. The correct t-value is ${correctTValue}.`;
-        document.getElementById("result-step4").style.color = "red";
+        resultElement.innerText = `Incorrect. The correct t-value is ${correctTValue}.`;
+        resultElement.style.color = "red"; // Display text in red if incorrect
     }
 }
+
 
 
 function checkDecision() {
     const decision = document.getElementById("decision-choice").value;
+    const resultElement = document.getElementById("result-step6");
     let correctDecision;
 
     if (testData.tailType === "two-tailed") {
-        correctDecision = (testData.tValue < testData.criticalValue.neg || testData.tValue > testData.criticalValue.pos) ? "reject" : "failreject";
+        correctDecision = (testData.tValue < -testData.criticalValue || testData.tValue > testData.criticalValue) ? "reject" : "failreject";
     } else if (testData.tailType === "one-tailed" && testData.direction === "greater") {
         correctDecision = (testData.tValue > testData.criticalValue) ? "reject" : "failreject";
     } else {
-        correctDecision = (testData.tValue < testData.criticalValue) ? "reject" : "failreject";
+        correctDecision = (testData.tValue < -testData.criticalValue) ? "reject" : "failreject";
     }
 
-    document.getElementById("result-step6").textContent = (decision === correctDecision) ? "Correct decision!" : "Incorrect decision. Try again.";
+    if (decision === correctDecision) {
+        resultElement.textContent = "Correct decision!";
+        resultElement.style.color = "green"; // Display text in green if correct
+
+        // Reveal the "Regenerate Problem" button when the decision is correct
+        document.getElementById("regenerate-button").style.display = "block";
+    } else {
+        resultElement.textContent = "Incorrect decision. Try again.";
+        resultElement.style.color = "red"; // Display text in red if incorrect
+    }
 }
+
 
 // Drag and drop functions
 function allowDrop(ev) { ev.preventDefault(); }
