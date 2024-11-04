@@ -278,7 +278,7 @@ function generateProblem() {
     if (direction === "two-tailed") {
         problemText += ` Test if there is a significant difference between the two ${isPaired ? 'conditions' : 'groups'}.`;
     } else {
-        problemText += ` Test if ${isPaired ? 'post-intervention' : 'Group A'} is ${direction === "greater" ? "greater than" : "less than"} ${isPaired ? 'pre-intervention' : 'Group B'}.`;
+        problemText += ` Test if ${isPaired ? 'post-intervention' : 'Group A'} is ${direction === "greater" ? "greater than (one-tailed)" : "less than (one-tailed)"} ${isPaired ? 'pre-intervention' : 'Group B'}.`;
     }
 
     // Display the problem text on the page
@@ -350,7 +350,12 @@ function checkCriticalValue() {
     const sampleType = document.getElementById("sample-type-choice").value;
     const tailType = document.getElementById("tail-type-choice").value;
 
-    const criticalValue = calculateCriticalT(alpha, sampleType, tailType);
+    let criticalValue = calculateCriticalT(alpha, sampleType, tailType);
+
+    // Adjust critical value for one-tailed "less than" tests
+    if (tailType === "one-tailed" && testData.direction === "less") {
+        criticalValue = -Math.abs(criticalValue);
+    }
 
     if (criticalValue !== null) {
         const userValue = parseFloat(document.getElementById("critical-value-input").value);
@@ -364,7 +369,7 @@ function checkCriticalValue() {
             // Reveal the next step when the answer is correct
             document.getElementById("step-5").style.display = "block";
         } else {
-            resultElement.textContent = `Incorrect. The correct critical value is ${criticalValue.toFixed(2)}.`;
+            resultElement.textContent = `Incorrect. The correct critical value is ${criticalValue.toFixed(3)}.`;
             resultElement.style.color = "red"; // Display text in red if incorrect
         }
     } else {
@@ -372,6 +377,7 @@ function checkCriticalValue() {
         document.getElementById("result-step4").style.color = "red"; // Display error text in red
     }
 }
+
 
 
 
@@ -411,12 +417,17 @@ function checkDecision() {
     const resultElement = document.getElementById("result-step6");
     let correctDecision;
 
+    // Adjust critical value for one-tailed "less than" tests
+    if (testData.tailType === "one-tailed" && testData.direction === "less") {
+        testData.criticalValue = -Math.abs(testData.criticalValue);
+    }
+
     if (testData.tailType === "two-tailed") {
         correctDecision = (testData.tValue < -testData.criticalValue || testData.tValue > testData.criticalValue) ? "reject" : "failreject";
     } else if (testData.tailType === "one-tailed" && testData.direction === "greater") {
         correctDecision = (testData.tValue > testData.criticalValue) ? "reject" : "failreject";
-    } else {
-        correctDecision = (testData.tValue < -testData.criticalValue) ? "reject" : "failreject";
+    } else if (testData.tailType === "one-tailed" && testData.direction === "less") {
+        correctDecision = (testData.tValue < testData.criticalValue) ? "reject" : "failreject";
     }
 
     if (decision === correctDecision) {
@@ -430,6 +441,7 @@ function checkDecision() {
         resultElement.style.color = "red"; // Display text in red if incorrect
     }
 }
+
 
 
 // Drag and drop functions
