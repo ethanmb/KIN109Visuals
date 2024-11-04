@@ -65,24 +65,34 @@
         <div id="result-step3" class="result"></div>
     </div>
 
-    <!-- Step 4: Calculate t-value -->
-    <div id="step-4" style="display: none;">
-        <p><strong>Step 4: Calculate the t-value</strong></p>
+<!-- Step 4: Identify Critical Value -->
+<div id="step-4" style="display: none;">
+    <p><strong>Step 4: Identify the Critical Value</strong></p>
+    <p>Enter the critical t value(s) based on the test direction:</p>
+    <div id="critical-value-instructions"></div>
+    <input type="text" id="critical-value-input" placeholder="Enter critical t value(s)">
+    <button onclick="checkCriticalValue()">Submit Critical Value</button>
+    <div id="result-step4" class="result"></div>
+</div>
+
+    <!-- Step 5: Calculate t-value -->
+    <div id="step-5" style="display: none;">
+        <p><strong>Step 5: Calculate the t-value</strong></p>
         <p>Calculated t-value: <input type="text" id="t-value-input" placeholder="Enter your calculated t value here"></p>
         <button onclick="checkTValue()">Check Calculation</button>
-        <div id="result-step4" class="result"></div>
+        <div id="result-step5" class="result"></div>
     </div>
 
-    <!-- Step 5: Make a Decision -->
-    <div id="step-5" style="display: none;">
-        <p><strong>Step 5: Make a Decision</strong></p>
+    <!-- Step 6: Make a Decision -->
+    <div id="step-6" style="display: none;">
+        <p><strong>Step 6: Make a Decision</strong></p>
         <p>Decision: <select id="decision-choice">
             <option value="">--Select--</option>
             <option value="reject">Reject H₀</option>
             <option value="failreject">Do not reject H₀</option>
         </select></p>
         <button onclick="checkDecision()">Submit Decision</button>
-        <div id="result-step5" class="result"></div>
+        <div id="result-step6" class="result"></div>
     </div>
 
     <!-- Regenerate Problem Button -->
@@ -248,55 +258,64 @@ function checkHypotheses() {
 }
 
 const tTable = {
-    1: { 0.01: 63.657, 0.05: 12.706 },
-    2: { 0.01: 9.925, 0.05: 4.303 },
-    3: { 0.01: 5.841, 0.05: 3.182 },
-    4: { 0.01: 4.604, 0.05: 2.776 },
-    5: { 0.01: 4.032, 0.05: 2.571 },
-    6: { 0.01: 3.707, 0.05: 2.447 },
-    7: { 0.01: 3.499, 0.05: 2.365 },
-    8: { 0.01: 3.355, 0.05: 2.306 },
-    9: { 0.01: 3.250, 0.05: 2.262 },
-    10: { 0.01: 3.169, 0.05: 2.228 },
-    11: { 0.01: 3.106, 0.05: 2.201 },
-    12: { 0.01: 3.055, 0.05: 2.179 },
-    13: { 0.01: 3.012, 0.05: 2.160 },
-    14: { 0.01: 2.977, 0.05: 2.145 },
-    15: { 0.01: 2.947, 0.05: 2.131 },
-    16: { 0.01: 2.921, 0.05: 2.120 },
-    17: { 0.01: 2.898, 0.05: 2.110 },
-    18: { 0.01: 2.878, 0.05: 2.101 },
-    19: { 0.01: 2.861, 0.05: 2.093 },
-    20: { 0.01: 2.845, 0.05: 2.086 },
-    21: { 0.01: 2.831, 0.05: 2.080 },
-    22: { 0.01: 2.819, 0.05: 2.074 },
-    23: { 0.01: 2.807, 0.05: 2.069 },
-    24: { 0.01: 2.797, 0.05: 2.064 },
-    25: { 0.01: 2.787, 0.05: 2.060 },
-    26: { 0.01: 2.779, 0.05: 2.056 },
-    27: { 0.01: 2.771, 0.05: 2.052 },
-    28: { 0.01: 2.763, 0.05: 2.048 },
-    29: { 0.01: 2.756, 0.05: 2.045 },
-    30: { 0.01: 2.750, 0.05: 2.042 }
+    1: { 0.10: 6.320, 0.05: 12.706 },
+    2: { 0.10: 2.912, 0.05: 4.303 },
+    3: { 0.10: 2.352, 0.05: 3.182 },
+    4: { 0.10: 2.132, 0.05: 2.776 },
+    5: { 0.10: 2.015, 0.05: 2.571 },
+    6: { 0.10: 1.943, 0.05: 2.447 },
+    7: { 0.10: 1.895, 0.05: 2.365 },
+    8: { 0.10: 1.860, 0.05: 2.306 },
+    9: { 0.10: 1.833, 0.05: 2.262 },
+    10: { 0.10: 1.813, 0.05: 2.228 },
+    11: { 0.10: 1.796, 0.05: 2.201 },
+    12: { 0.10: 1.782, 0.05: 2.179 },
+    13: { 0.10: 1.771, 0.05: 2.160 },
+    14: { 0.10: 1.761, 0.05: 2.145 },
+    15: { 0.10: 1.753, 0.05: 2.131 },
+    16: { 0.10: 1.746, 0.05: 2.120 },
+    17: { 0.10: 1.740, 0.05: 2.110 },
+    18: { 0.10: 1.734, 0.05: 2.101 },
+    19: { 0.10: 1.729, 0.05: 2.093 },
+    20: { 0.10: 1.725, 0.05: 2.086 },
+    21: { 0.10: 1.721, 0.05: 2.080 },
+    22: { 0.10: 1.717, 0.05: 2.074 },
+    23: { 0.10: 1.714, 0.05: 2.069 },
+    24: { 0.10: 1.711, 0.05: 2.064 },
+    25: { 0.10: 1.708, 0.05: 2.060 },
+    26: { 0.10: 1.706, 0.05: 2.056 },
+    27: { 0.10: 1.703, 0.05: 2.052 },
+    28: { 0.10: 1.701, 0.05: 2.048 },
+    29: { 0.10: 1.699, 0.05: 2.045 },
+    30: { 0.10: 1.697, 0.05: 2.042 }
 };
 
-function calculateCriticalValue(alpha, degreesOfFreedom) {
-    // Check if the degrees of freedom and alpha level are in the table
-    if (tTable[degreesOfFreedom] && tTable[degreesOfFreedom][alpha]) {
-        return tTable[degreesOfFreedom][alpha];
+function calculateCriticalValue(alpha, df) {
+    // Modify alpha for one-tailed tests
+    let criticalValue;
+    if (testData.tailType === "one-tailed") {
+        criticalValue = (testData.direction === "greater") ? tTable[df][".10"] : -tTable[df][".10"];
     } else {
-        // Handle cases where degrees of freedom exceed the table's range
-        if (degreesOfFreedom > 30) {
-            console.warn("Degrees of freedom exceed table range; using value for df=30 as an approximation.");
-            return tTable[30][alpha];
-        } else {
-            console.error(`Critical value for df=${degreesOfFreedom} and alpha=${alpha} not found in the table.`);
-            return null; // Return null if the value is missing from the table
-        }
+        // Two-tailed test, positive and negative values
+        criticalValue = { pos: tTable[df][".05"], neg: -tTable[df][".05"] };
     }
+    return criticalValue;
 }
 
+function checkCriticalValue() {
+    const criticalValueInput = document.getElementById("critical-value-input").value.trim();
+    let isCorrect = false;
 
+    if (testData.tailType === "two-tailed") {
+        const expectedValues = `${testData.criticalValue.neg}, ${testData.criticalValue.pos}`;
+        isCorrect = criticalValueInput === expectedValues;
+    } else {
+        isCorrect = parseFloat(criticalValueInput) === testData.criticalValue;
+    }
+
+    document.getElementById("result-step4").textContent = isCorrect ? "Correct!" : "Incorrect critical value. Try again.";
+}
+    
 function checkTValue() {
     const tValueInput = parseFloat(document.getElementById("t-value-input").value);
 
@@ -325,18 +344,18 @@ function checkTValue() {
 
 
 function checkDecision() {
-    const decisionInput = document.getElementById("decision-choice").value;
-    
-    const correctDecision = Math.abs(testData.tValue) > testData.criticalValue ? "reject" : "failreject";
-    
-    if (decisionInput === correctDecision) {
-        document.getElementById("result-step5").innerText = "Decision is correct!";
-        document.getElementById("result-step5").style.color = "green";
-        document.getElementById("regenerate-button").style.display = "block";
+    const decision = document.getElementById("decision-choice").value;
+    let correctDecision;
+
+    if (testData.tailType === "two-tailed") {
+        correctDecision = (testData.tValue < testData.criticalValue.neg || testData.tValue > testData.criticalValue.pos) ? "reject" : "failreject";
+    } else if (testData.tailType === "one-tailed" && testData.direction === "greater") {
+        correctDecision = (testData.tValue > testData.criticalValue) ? "reject" : "failreject";
     } else {
-        document.getElementById("result-step5").innerText = `Incorrect. You should ${correctDecision} H₀.`;
-        document.getElementById("result-step5").style.color = "red";
+        correctDecision = (testData.tValue < testData.criticalValue) ? "reject" : "failreject";
     }
+
+    document.getElementById("result-step6").textContent = (decision === correctDecision) ? "Correct decision!" : "Incorrect decision. Try again.";
 }
 
 // Drag and drop functions
