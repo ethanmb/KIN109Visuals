@@ -38,7 +38,7 @@
 </head>
 <body>
 <!-- Include jStat library for t-distribution calculations -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
+<script src="https://cdnjs.cloulare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
 
 <div class="canvas-lms-style">
   <h3>Confidence Interval Practice Problem: Paired or Independent Samples</h3>
@@ -297,9 +297,7 @@ function checkCriticalValue() {
   // Calculate critical value dynamically using degrees of freedom
   const df = sampleType === 'paired' 
       ? sampleSize - 1 
-      : Math.floor((Math.pow(stdDev1, 2) / sampleSize1 + Math.pow(stdDev2, 2) / sampleSize2) ** 2 /
-          (((Math.pow(stdDev1, 2) / sampleSize1) ** 2) / (sampleSize1 - 1) + 
-           ((Math.pow(stdDev2, 2) / sampleSize2) ** 2) / (sampleSize2 - 1)));
+      : sampleSize1 - 1;
 
   // Compute t critical value
   criticalValue = jStat.studentt.inv(1 - (1 - confidenceLevel / 100) / 2, df);
