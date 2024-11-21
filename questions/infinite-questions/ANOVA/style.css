@@ -30,6 +30,21 @@ button:hover {
     background-color: #45a049;
 }
 
+#f-table-toggle-button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#f-table-toggle-button:hover {
+    background-color: #45a049;
+}
+
+
 .drop-area {
     display: inline-block;
     width: 60px;

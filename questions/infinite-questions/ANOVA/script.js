@@ -115,14 +115,37 @@ function checkDegreesOfFreedom() {
 }
 
 
-// F-table display
-function showFTable() {
-    document.getElementById("f-table").classList.remove("hidden");
+// Toggle F-Table visibility
+function toggleFTable() {
+    const fTableDiv = document.getElementById("f-table");
+    const toggleButton = document.getElementById("f-table-toggle-button");
+
+    // Check current state
+    if (fTableDiv.classList.contains("hidden")) {
+        // Show F-table and update button text
+        fTableDiv.classList.remove("hidden");
+        toggleButton.innerText = "Close F-Table";
+    } else {
+        // Hide F-table and reset button text
+        fTableDiv.classList.add("hidden");
+        toggleButton.innerText = "Open F-Table";
+    }
 }
 
+// Close F-Table (triggered by either close button)
 function closeFTable() {
-    document.getElementById("f-table").classList.add("hidden");
+    const fTableDiv = document.getElementById("f-table");
+    const toggleButton = document.getElementById("f-table-toggle-button");
+
+    // Hide F-table and reset button text
+    fTableDiv.classList.add("hidden");
+    toggleButton.innerText = "Open F-Table";
 }
+
+// Attach event listeners
+document.getElementById("f-table-toggle-button").addEventListener("click", toggleFTable);
+document.getElementById("close-f-table-button").addEventListener("click", closeFTable);
+
 
 function showCriticalFStep() {
     const currentProblem = problems[problems.length - 1]; // Get the most recent problem
@@ -185,6 +208,4 @@ function showAnovaTableStep() {
 document.getElementById("generate-problem-button").addEventListener("click", generateProblem);
 document.getElementById("submit-hypotheses-button").addEventListener("click", checkHypotheses);
 document.getElementById("submit-df-button").addEventListener("click", checkDegreesOfFreedom);
-document.getElementById("show-f-table-button").addEventListener("click", showFTable);
-document.getElementById("close-f-table-button").addEventListener("click", closeFTable);
 document.getElementById("submit-critical-f-button").addEventListener("click", checkCriticalFValue);

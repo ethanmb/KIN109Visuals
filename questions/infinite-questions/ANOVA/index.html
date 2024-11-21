@@ -51,17 +51,22 @@
         <!-- Step 3: Critical F-Value -->
         <div id="step-3-critical-f" class="hidden">
             <p><strong>Step 3: Determine the Critical F-Value</strong></p>
-            <p>Refer to the F-table to identify the critical F-value</p>
+            <p>Refer to the F-table to identify the critical F-value:</p>
             <p>Enter the critical F-value:</p>
             <input id="critical-f-value" type="number" step="0.001" placeholder="Critical F-value">
             <button id="submit-critical-f-button">Submit</button>
             <div id="critical-f-feedback"></div>
-            <p>Need help? <button id="show-f-table-button">Open F-Table</button></p>
+
+            <!-- Universal F-Table Toggle Button -->
+            <button id="f-table-toggle-button" class="validate-button">Open F-Table</button>
+
+            <!-- F-Table Section -->
             <div id="f-table" class="hidden">
-                <img src="assets/f-table.png" alt="F-Table" style="max-width: 100%;">
-                <button id="close-f-table-button">Close F-Table</button>
+                <img src="assets/f-table.png" alt="F-Table" style="max-width: 100%; margin-top: 10px;">
+                <button id="close-f-table-button" class="validate-button">Close F-Table</button>
             </div>
         </div>
+
 
         <!-- Step 4: ANOVA Table -->
         <div id="step-4-anova-table" class="hidden">
