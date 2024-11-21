@@ -1,0 +1,114 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f9f9f9;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.hidden {
+    display: none;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.drop-area {
+    display: inline-block;
+    width: 60px;
+    text-align: center;
+    border: 1px dashed #ddd;
+    margin: 0 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+}
+
+/* Buttons in Column Headers */
+table thead th button {
+    margin-top: 5px;
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+table thead th button:hover {
+    background-color: #45a049;
+}
+
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    text-align: center;
+}
+
+table td {
+    text-align: center;
+}
+
+table input {
+    width: 80%;
+    padding: 5px;
+    text-align: center;
+}
+
+/* Buttons and Feedback */
+.anova-buttons {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.anova-buttons button {
+    margin: 5px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.anova-buttons button:hover {
+    background-color: #45a049;
+}
+
+#anova-feedback {
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+}
