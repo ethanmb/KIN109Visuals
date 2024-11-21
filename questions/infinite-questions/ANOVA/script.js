@@ -1,5 +1,3 @@
-
-
 // Global array to store generated problems
 const problems = [];
 
@@ -142,10 +140,6 @@ function closeFTable() {
     toggleButton.innerText = "Open F-Table";
 }
 
-// Attach event listeners
-document.getElementById("f-table-toggle-button").addEventListener("click", toggleFTable);
-document.getElementById("close-f-table-button").addEventListener("click", closeFTable);
-
 
 function showCriticalFStep() {
     const currentProblem = problems[problems.length - 1]; // Get the most recent problem
@@ -203,9 +197,86 @@ function showAnovaTableStep() {
     showStep("step-4-anova-table");
 }
 
+function validateSSColumn() {
+    // Step 1: Retrieve generated data
+    const currentProblem = problems[problems.length - 1];
+    const { group1, group2, group3 } = currentProblem;
+
+    const groupMeans = [parseFloat(group1.mean), parseFloat(group2.mean), parseFloat(group3.mean)];
+    const groupSDs = [parseFloat(group1.sd), parseFloat(group2.sd), parseFloat(group3.sd)];
+    const n = group1.n; // Same for all groups
+
+    // Step 2: Calculate Grand Mean
+    const grandMean = (groupMeans[0] + groupMeans[1] + groupMeans[2]) / 3;
+    
+
+
+    // Step 3: Calculate SS Between Groups (SS_BG)
+    const ssBetween = n * (
+        Math.pow(groupMeans[0] - grandMean, 2) +
+        Math.pow(groupMeans[1] - grandMean, 2) +
+        Math.pow(groupMeans[2] - grandMean, 2)
+    );
+
+    // Step 4: Calculate SS Within Groups (SS_WG)
+    const ssWithin = (n - 1) * (
+        Math.pow(groupSDs[0], 2) +
+        Math.pow(groupSDs[1], 2) +
+        Math.pow(groupSDs[2], 2)
+    );
+
+    // Step 5: Calculate SS Total
+    const ssTotal = ssBetween + ssWithin;
+
+    // Step 6: Retrieve user inputs
+    const userSSBetween = parseFloat(document.getElementById("ss-between").value);
+    const userSSWithin = parseFloat(document.getElementById("ss-within").value);
+    const userSSTotal = parseFloat(document.getElementById("ss-total").value);
+
+    // Step 7: Validate user inputs and provide feedback
+    const feedback = document.getElementById("anova-feedback");
+    let feedbackMessage = "";
+
+    // Validate SS Between
+    if (Math.abs(userSSBetween - ssBetween) < 0.01) {
+        feedbackMessage += "✔️ SS Between is correct.<br>";
+    } else {
+        feedbackMessage += `❌ SS Between is incorrect. Expected: ${ssBetween.toFixed(2)}.<br>`;
+    }
+
+    // Validate SS Within
+    if (Math.abs(userSSWithin - ssWithin) < 0.01) {
+        feedbackMessage += "✔️ SS Within is correct.<br>";
+    } else {
+        feedbackMessage += `❌ SS Within is incorrect. Expected: ${ssWithin.toFixed(2)}.<br>`;
+    }
+
+    // Validate SS Total
+    if (Math.abs(userSSTotal - ssTotal) < 0.01) {
+        feedbackMessage += "✔️ SS Total is correct.<br>";
+    } else {
+        feedbackMessage += `❌ SS Total is incorrect. Expected: ${ssTotal.toFixed(2)}.<br>`;
+    }
+
+    console.log("Group 1 Mean:", group1.mean);
+    console.log("Group 2 Mean:", group2.mean);
+    console.log("Group 3 Mean:", group3.mean);
+    console.log("n:", n);
+    console.log("Weighted Sum:", (groupMeans[0] * n + groupMeans[1] * n + groupMeans[2] * n).toFixed(2));
+    console.log("Grand Mean:", grandMean.toFixed(2));
+
+    // Display Feedback
+    feedback.innerHTML = feedbackMessage;
+    feedback.style.color = feedbackMessage.includes("❌") ? "red" : "green";
+}
+
+
 
 // Event listeners
 document.getElementById("generate-problem-button").addEventListener("click", generateProblem);
 document.getElementById("submit-hypotheses-button").addEventListener("click", checkHypotheses);
 document.getElementById("submit-df-button").addEventListener("click", checkDegreesOfFreedom);
 document.getElementById("submit-critical-f-button").addEventListener("click", checkCriticalFValue);
+document.getElementById("validate-ss").addEventListener("click", validateSSColumn);
+document.getElementById("f-table-toggle-button").addEventListener("click", toggleFTable);
+document.getElementById("close-f-table-button").addEventListener("click", closeFTable);
