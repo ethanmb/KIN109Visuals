@@ -168,7 +168,7 @@ function update() {
                 data = data.filter(p => p !== d);
                 // Revert to a low correlation state after removing a point
                 if (Math.abs(calculateCorrelation(data)) > 0.8) {  // If the current correlation is high
-                    revertToLowCorrelation();
+                    //revertToLowCorrelation();
                 } else {
                     resetOriginalData();  // Otherwise, just reset the original data
                 }
