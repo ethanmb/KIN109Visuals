@@ -259,11 +259,35 @@ function calculateCorrelation(data) {
     return numerator / denominator || 0; // Prevent division by zero
 }
 
+let newPoints = []; // Track newly added points
+
+function alignNewPoints() {
+    if (newPoints.length === 0) return;
+
+    const meanX = d3.mean(data, d => d.x);
+    const meanY = d3.mean(data, d => d.y);
+    const sdX = d3.deviation(data, d => d.x) || 1; // Avoid zero SD
+    const sdY = d3.deviation(data, d => d.y) || 1;
+
+    // Move new points closer to the dataset's mean
+    newPoints = newPoints.map(point => ({
+        x: point.x + (meanX - point.x), // Move halfway to the mean
+        y: point.y + (meanY - point.y), // Move halfway to the mean
+    }));
+
+    // Merge aligned points back into the main dataset
+    data = [...data.filter(p => !newPoints.includes(p)), ...newPoints];
+}
+
+
 
 function adjustCorrelation(targetCorrelation) {
     if (data.length < 2) return;
 
     sliderActive = true;
+
+    alignNewPoints();
+    newPoints = []; // Clear new points after alignment
 
     const meanX = d3.mean(dataOriginal, d => d.x);
     const meanY = d3.mean(dataOriginal, d => d.y);
@@ -299,6 +323,8 @@ function adjustCorrelation(targetCorrelation) {
 
 // Initialize the visualization
 update();
+
+
 
 function resetOriginalData() {
     const correlation = Math.abs(calculateCorrelation(data));
@@ -342,8 +368,14 @@ d3.select("#addBtn").on("click", function() {
     d3.select(this).classed("selected", true);
     svg.style("cursor", "crosshair"); // Green "+" cursor for add mode
     disableDrag(); // Disable dragging during add mode
-    resetOriginalData(); // Recompute dataOriginal after modification
+    const coords = d3.pointer(event, this);
+    const newPoint = { x: xScale.invert(coords[0]), y: yScale.invert(coords[1]) };
+    data.push(newPoint);
+    newPoints.push(newPoint); // Track this new point
+    console.log("New point added:", newPoint); // Log the new point
+    console.log("Current newPoints array:", newPoints);
     update();
+    resetOriginalData(); // Reinitialize the dataset state
 });
 
 d3.select("#deleteBtn").on("click", function() {
@@ -381,3 +413,22 @@ function enableDrag() {
 function disableDrag() {
     svg.selectAll("circle").on(".drag", null); // Disable dragging
 }
+
+// Function to reset the visualization
+function resetData() {
+    data = generateInitialData(); // Generate new random data
+    dataOriginal = data.map(d => ({ ...d })); // Store a fresh copy
+    sliderActive = false; // Reset slider state
+
+    // Reset slider value
+    d3.select("#correlationSlider").property("value", 0);
+    d3.select("#correlationValue").text("0");
+
+    // Update all visualizations
+    update();
+    vennDiagram.update(0); // Reset the Venn diagram
+    console.log("Data reset to initial state.");
+}
+
+// Event listener for the reset button
+d3.select("#resetBtn").on("click", resetData);
