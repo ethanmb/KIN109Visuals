@@ -24,7 +24,8 @@ svg.append("g")
     .attr("height", chartHeight)
     .attr("fill", "transparent");
 
-let data = generateInitialData();
+let originalData = generateInitialData(); // Store the immutable original dataset
+let data = originalData.map(d => ({ ...d })); // Create a working copy for modifications
 let dataOriginal = data.map(d => ({ ...d })); // Store the original data points
 let mode = 'add';
 let sliderActive = false;
@@ -82,15 +83,15 @@ const regressionLine = svg.append("line")
                 const rSquared = Math.pow(correlation, 2); // Shared variance
                 const maxDistance = 2 * radius; // Maximum distance when edges touch
                 const distance = maxDistance * Math.sqrt(1 - rSquared); // Scaled distance between centers
-    
-                // Calculate new positions for both circles
-                const leftCircleX = (width / 2) - distance / 2; // Move left circle right by half the distance
-                const rightCircleX = (width / 2) + distance / 2; // Move right circle left by half the distance
-    
+            
+                // Ensure overlap for both positive and negative correlations
+                const leftCircleX = (width / 2) - Math.abs(distance / 2);
+                const rightCircleX = (width / 2) + Math.abs(distance / 2);
+            
                 // Update positions of the circles
                 circleX.attr("cx", leftCircleX);
                 circleY.attr("cx", rightCircleX);
-    
+            
                 // Update text for shared variance
                 svg.selectAll("text").remove();
                 svg.append("text")
@@ -101,6 +102,8 @@ const regressionLine = svg.append("line")
                     .style("font-size", "14px")
                     .style("fill", "#333");
             }
+            
+            
         };
     }
     
@@ -255,6 +258,7 @@ function calculateCorrelation(data) {
         d3.sum(data, d => Math.pow(d.x - meanX, 2)) *
         d3.sum(data, d => Math.pow(d.y - meanY, 2))
     );
+    
 
     return numerator / denominator || 0; // Prevent division by zero
 }
@@ -284,28 +288,15 @@ function alignNewPoints() {
 function adjustCorrelation(targetCorrelation) {
     if (data.length < 2) return;
 
-    sliderActive = true;
-
-    alignNewPoints();
-    newPoints = []; // Clear new points after alignment
-
-    const meanX = d3.mean(dataOriginal, d => d.x);
-    const meanY = d3.mean(dataOriginal, d => d.y);
-    const sdX = d3.deviation(dataOriginal, d => d.x) || 1; // Prevent zero SD
-    const sdY = d3.deviation(dataOriginal, d => d.y) || 1; // Prevent zero SD
-
-    // Perturb data slightly if sliding back from ±1
-    if (Math.abs(targetCorrelation) < 1 && Math.abs(calculateCorrelation(dataOriginal)) === 1) {
-        dataOriginal = dataOriginal.map(d => ({
-            x: d.x + (Math.random() - 0.5) * 0.1 * sdX,
-            y: d.y + (Math.random() - 0.5) * 0.1 * sdY,
-        }));
-    }
+    const meanX = d3.mean(originalData, d => d.x); // Use original data for mean
+    const meanY = d3.mean(originalData, d => d.y);
+    const sdX = d3.deviation(originalData, d => d.x) || 1;
+    const sdY = d3.deviation(originalData, d => d.y) || 1;
 
     const clampedCorrelation = Math.max(-1, Math.min(1, targetCorrelation));
     const orthogonalComponent = Math.sqrt(Math.max(0, 1 - clampedCorrelation ** 2));
 
-    data = dataOriginal.map(d => {
+    data = originalData.map(d => {
         const xStandardized = (d.x - meanX) / sdX;
         const yStandardized = (d.y - meanY) / sdY;
 
@@ -318,6 +309,7 @@ function adjustCorrelation(targetCorrelation) {
 
     update();
 }
+
 
 
 
@@ -356,8 +348,17 @@ function resetOriginalData() {
 d3.select("#correlationSlider").on("input", function() {
     const targetCorrelation = +this.value;
     d3.select("#correlationValue").text(targetCorrelation.toFixed(2));
-    adjustCorrelation(targetCorrelation); // Update scatterplot
-    vennDiagram.update(targetCorrelation); // Update Venn diagram
+    data = originalData.map(d => ({ ...d }));
+    // Adjust data to match the target correlation
+    adjustCorrelation(targetCorrelation);
+
+    // Recalculate the actual correlation of the transformed data
+    const recalculatedCorrelation = calculateCorrelation(data);
+    console.log("Recalculated Correlation:", recalculatedCorrelation);
+
+    // Update the Venn diagram and scatterplot with the recalculated correlation
+    vennDiagram.update(recalculatedCorrelation);
+    update();
 });
 
 
