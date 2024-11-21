@@ -24,6 +24,49 @@ svg.append("g")
     .attr("height", chartHeight)
     .attr("fill", "transparent");
 
+
+function scaleDatasaurus(data, xRange, yRange) {
+    const xMin = d3.min(data, d => d.x);
+    const xMax = d3.max(data, d => d.x);
+    const yMin = d3.min(data, d => d.y);
+    const yMax = d3.max(data, d => d.y);
+
+    return data.map(d => ({
+        x: ((d.x - xMin+7) / (xMax - xMin)) * (xRange[1] - xRange[0]) + xRange[0], // Scale x to [0, 120]
+        y: ((d.y - yMin) / (yMax - yMin)) * (yRange[1] - yRange[0]) + yRange[0]  // Scale y to [80, 120]
+    }));
+}
+    
+function loadDatasaurus(callback) {
+    d3.csv("datasaurus.csv").then(function(data) {
+        // Filter for only rows with dataset == "dino"
+        const dinoData = data.filter(d => d.dataset === "dino")
+                             .map(d => ({
+                                 x: +d.x,  // Convert x and y to numbers
+                                 y: +d.y
+                             }));
+        
+        // Scale the data to fit the chart's axis ranges
+        const scaledData = scaleDatasaurus(dinoData, [0, 120], [80, 120]);
+        
+        callback(scaledData);
+    });
+}
+
+
+let x = 0;
+// Initialize the app with Datasaurus
+loadDatasaurus(function(dinoData) {
+    if (x === 0){
+        originalData = dinoData; // Use the Datasaurus as the original dataset
+        data = originalData.map(d => ({ ...d })); // Copy of the data for manipulation
+        x=1;
+        update(); // Render the initial chart with Datasaurus
+    }
+    else{
+        return;
+    }
+});
 let originalData = generateInitialData(); // Store the immutable original dataset
 let data = originalData.map(d => ({ ...d })); // Create a working copy for modifications
 let dataOriginal = data.map(d => ({ ...d })); // Store the original data points
@@ -419,6 +462,7 @@ function disableDrag() {
 function resetData() {
     data = generateInitialData(); // Generate new random data
     dataOriginal = data.map(d => ({ ...d })); // Store a fresh copy
+    originalData = data.map(d => ({ ...d })); // Store a fresh copy
     sliderActive = false; // Reset slider state
 
     // Reset slider value
