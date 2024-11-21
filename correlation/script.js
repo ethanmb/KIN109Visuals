@@ -123,17 +123,30 @@ const regressionLine = svg.append("line")
             circleX,
             circleY,
             update(correlation) {
-                const rSquared = Math.pow(correlation, 2); // Shared variance
+                const clampedCorrelation = Math.max(-1, Math.min(1, correlation)); // Ensure correlation stays in [-1, 1]
+                const rSquared = Math.pow(clampedCorrelation, 2); // Shared variance
                 const maxDistance = 2 * radius; // Maximum distance when edges touch
-                const distance = maxDistance * Math.sqrt(1 - rSquared); // Scaled distance between centers
             
-                // Ensure overlap for both positive and negative correlations
-                const leftCircleX = (width / 2) - Math.abs(distance / 2);
-                const rightCircleX = (width / 2) + Math.abs(distance / 2);
+                if (clampedCorrelation === 1 || clampedCorrelation === -1) {
+                    // Explicitly position circles at the exact center for r = ±1
+                    const centerX = width / 2; // Center of the chart
+                    circleX.attr("cx", centerX); // Left circle at center
+                    circleY.attr("cx", centerX); // Right circle at center
+                } else {
+                    // Default behavior for intermediate correlations
+                    const distance = maxDistance * Math.sqrt(1 - rSquared); // Scaled distance between centers
+                    const leftCircleX = (width / 2) - Math.abs(distance / 2);
+                    const rightCircleX = (width / 2) + Math.abs(distance / 2);
             
-                // Update positions of the circles
-                circleX.attr("cx", leftCircleX);
-                circleY.attr("cx", rightCircleX);
+                    // Update positions of the circles
+                    circleX.attr("cx", leftCircleX);
+                    circleY.attr("cx", rightCircleX);
+                }
+            
+                // Ensure the circles are vertically centered (redundancy for edge cases)
+                const centerY = height / 2;
+                circleX.attr("cy", centerY); // Left circle vertical center
+                circleY.attr("cy", centerY); // Right circle vertical center
             
                 // Update text for shared variance
                 svg.selectAll("text").remove();
@@ -145,6 +158,8 @@ const regressionLine = svg.append("line")
                     .style("font-size", "14px")
                     .style("fill", "#333");
             }
+            
+            
             
             
         };
