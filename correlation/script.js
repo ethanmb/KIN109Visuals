@@ -52,26 +52,62 @@ const regressionLine = svg.append("line")
     .attr("stroke", "red")
     .attr("stroke-width", 2);
 
-// Create the SVG container for the Venn diagram
-const vennSvg = d3.select("#venn")
-    .append("svg")
-    .attr("width", 200)
-    .attr("height", 100);
+    function initializeVennDiagram(containerId, width, height, radius) {
+        const svg = d3.select(containerId)
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+    
+        // Initialize the left circle (blue)
+        const circleX = svg.append("circle")
+            .attr("cx", width / 2 - radius) // Start slightly left
+            .attr("cy", height / 2) // Centered vertically
+            .attr("r", radius)
+            .attr("fill", "blue")
+            .attr("opacity", 0.6);
+    
+        // Initialize the right circle (orange)
+        const circleY = svg.append("circle")
+            .attr("cx", width / 2 + radius) // Start slightly right
+            .attr("cy", height / 2) // Centered vertically
+            .attr("r", radius)
+            .attr("fill", "orange")
+            .attr("opacity", 0.6);
+    
+        return {
+            svg,
+            circleX,
+            circleY,
+            update(correlation) {
+                const rSquared = Math.pow(correlation, 2); // Shared variance
+                const maxDistance = 2 * radius; // Maximum distance when edges touch
+                const distance = maxDistance * Math.sqrt(1 - rSquared); // Scaled distance between centers
+    
+                // Calculate new positions for both circles
+                const leftCircleX = (width / 2) - distance / 2; // Move left circle right by half the distance
+                const rightCircleX = (width / 2) + distance / 2; // Move right circle left by half the distance
+    
+                // Update positions of the circles
+                circleX.attr("cx", leftCircleX);
+                circleY.attr("cx", rightCircleX);
+    
+                // Update text for shared variance
+                svg.selectAll("text").remove();
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height - 10)
+                    .attr("text-anchor", "middle")
+                    .text(`Shared Variance: ${(rSquared * 100).toFixed(1)}%`)
+                    .style("font-size", "14px")
+                    .style("fill", "#333");
+            }
+        };
+    }
+    
 
-// Draw the circles for the Venn diagram
-const circleX = vennSvg.append("circle")
-    .attr("cx", 50)
-    .attr("cy", 50)
-    .attr("r", 40)
-    .attr("fill", "#4DB661")
-    .attr("opacity", 0.5);
+    
 
-const circleY = vennSvg.append("circle")
-    .attr("cx", 150)
-    .attr("cy", 50)
-    .attr("r", 40)
-    .attr("fill", "lightgreen")
-    .attr("opacity", 0.5);
+const vennDiagram = initializeVennDiagram("#vennDiagram", 300, 150, 50);
 
 // Function to update the Venn diagram based on correlation
 function updateVennDiagram(correlation) {
@@ -165,8 +201,10 @@ function update() {
     d3.select("#correlationSlider").property("value", correlation);
     d3.select("#correlationValue").text(correlation.toFixed(2));
 
-    // Update the Venn diagram
-    updateVennDiagram(correlation);
+    // Update the Venn diagram ONLY when initializing
+    if (!sliderActive) {
+        vennDiagram.update(correlation);
+    }
 }
 
 // Function to update the regression line
@@ -207,50 +245,95 @@ function updateStatistics() {
 // Function to calculate the correlation between x and y
 function calculateCorrelation(data) {
     const n = data.length;
+    if (n < 2) return 0; // No correlation for insufficient data
+
     const meanX = d3.mean(data, d => d.x);
     const meanY = d3.mean(data, d => d.y);
+
     const numerator = d3.sum(data, d => (d.x - meanX) * (d.y - meanY));
     const denominator = Math.sqrt(
-        d3.sum(data, d => Math.pow(d.x - meanX, 2)) * d3.sum(data, d => Math.pow(d.y - meanY, 2))
+        d3.sum(data, d => Math.pow(d.x - meanX, 2)) *
+        d3.sum(data, d => Math.pow(d.y - meanY, 2))
     );
-    return numerator / denominator;
+
+    return numerator / denominator || 0; // Prevent division by zero
 }
 
-// Function to adjust the correlation by transforming the data
+
 function adjustCorrelation(targetCorrelation) {
     if (data.length < 2) return;
 
-    sliderActive = true;  // Indicate that the slider is being used
+    sliderActive = true;
 
-    // Calculate current means and standard deviations
     const meanX = d3.mean(dataOriginal, d => d.x);
     const meanY = d3.mean(dataOriginal, d => d.y);
-    const sdX = d3.deviation(dataOriginal, d => d.x);
-    const sdY = d3.deviation(dataOriginal, d => d.y);
+    const sdX = d3.deviation(dataOriginal, d => d.x) || 1; // Prevent zero SD
+    const sdY = d3.deviation(dataOriginal, d => d.y) || 1; // Prevent zero SD
 
-    // Compute the new positions based on the target correlation
+    // Perturb data slightly if sliding back from ±1
+    if (Math.abs(targetCorrelation) < 1 && Math.abs(calculateCorrelation(dataOriginal)) === 1) {
+        dataOriginal = dataOriginal.map(d => ({
+            x: d.x + (Math.random() - 0.5) * 0.1 * sdX,
+            y: d.y + (Math.random() - 0.5) * 0.1 * sdY,
+        }));
+    }
+
+    const clampedCorrelation = Math.max(-1, Math.min(1, targetCorrelation));
+    const orthogonalComponent = Math.sqrt(Math.max(0, 1 - clampedCorrelation ** 2));
+
     data = dataOriginal.map(d => {
         const xStandardized = (d.x - meanX) / sdX;
         const yStandardized = (d.y - meanY) / sdY;
 
-        const newY = targetCorrelation * xStandardized * sdY + yStandardized * Math.sqrt(1 - targetCorrelation ** 2) * sdY + meanY;
-        const newX = (xStandardized * sdX) + meanX;  // Adjust the x as well to keep the balance
+        const newY = clampedCorrelation * xStandardized * sdY +
+                     yStandardized * orthogonalComponent * sdY + meanY;
+        const newX = xStandardized * sdX + meanX;
+
         return { x: newX, y: newY };
     });
 
     update();
 }
 
+
+
 // Initialize the visualization
 update();
+
+function resetOriginalData() {
+    const correlation = Math.abs(calculateCorrelation(data));
+
+    const meanX = d3.mean(data, d => d.x);
+    const meanY = d3.mean(data, d => d.y);
+    const sdX = d3.deviation(data, d => d.x) || 1;
+    const sdY = d3.deviation(data, d => d.y) || 1;
+
+    if (correlation > 0.8) {
+        // Introduce variability proportional to correlation
+        const perturbFactor = (1 - correlation) * 0.2; // Higher for higher correlations
+        dataOriginal = data.map(d => ({
+            x: d.x + (Math.random() - 0.5) * perturbFactor * sdX,
+            y: d.y + (Math.random() - 0.5) * perturbFactor * sdY,
+        }));
+    } else {
+        // For lower correlations, just reset to the current dataset
+        dataOriginal = data.map(d => ({ ...d }));
+    }
+
+    sliderActive = false; // Reset slider state
+}
+
+
+
 
 // Event listener for the correlation slider
 d3.select("#correlationSlider").on("input", function() {
     const targetCorrelation = +this.value;
     d3.select("#correlationValue").text(targetCorrelation.toFixed(2));
-    adjustCorrelation(targetCorrelation);
-    sliderActive = false;  // Slider is no longer being actively used after adjustment
+    adjustCorrelation(targetCorrelation); // Update scatterplot
+    vennDiagram.update(targetCorrelation); // Update Venn diagram
 });
+
 
 // Event listeners for the add, delete, and move buttons
 d3.select("#addBtn").on("click", function() {
@@ -259,6 +342,8 @@ d3.select("#addBtn").on("click", function() {
     d3.select(this).classed("selected", true);
     svg.style("cursor", "crosshair"); // Green "+" cursor for add mode
     disableDrag(); // Disable dragging during add mode
+    resetOriginalData(); // Recompute dataOriginal after modification
+    update();
 });
 
 d3.select("#deleteBtn").on("click", function() {
@@ -267,6 +352,8 @@ d3.select("#deleteBtn").on("click", function() {
     d3.select(this).classed("selected", true);
     svg.style("cursor", "default"); // Default cursor for delete mode
     disableDrag(); // Disable dragging during delete mode
+    resetOriginalData(); // Recompute dataOriginal after modification
+    update();
 });
 
 d3.select("#moveBtn").on("click", function() {

@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <title>Correlation Visualization</title>
     <style>
-        /* Lighter and more modern color scheme using provided colors */
         body { 
-            background-color: #f5f5f5; /* Light gray background */
-            color: #333; /* Dark gray text color */
+            background-color: #f5f5f5;
+            color: #333; 
             font-family: Arial, sans-serif;
         }
         #chart { 
@@ -15,9 +14,9 @@
             display: block; 
             width: 600px; 
             height: 400px; 
-            background-color: #ffffff; /* White background for the chart */
-            border: 1px solid #ccc; /* Light border */
-            border-radius: 8px; /* Rounded corners */
+            background-color: #ffffff; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
         }
         #controls { 
             text-align: center; 
@@ -26,35 +25,33 @@
         .stats { 
             text-align: center; 
             margin-top: 10px; 
-            color: #2B26A5; /* Dark Green for the statistics text */
-        }
-        .venn { 
-            margin: 20px auto; 
-            display: block; 
-            width: 200px; 
-            height: 100px; 
+            color: #2B26A5; 
         }
         .btn { 
             margin: 5px; 
             padding: 8px 15px; 
             cursor: pointer; 
-            background-color: #06DAA5; /* Teal color for buttons */
+            background-color: #06DAA5; 
             color: white; 
             border: none; 
-            border-radius: 5px; /* Rounded corners for buttons */
+            border-radius: 5px; 
             font-size: 14px;
         }
         .btn.selected { 
-            background-color: #00A47F; /* Dark Teal when selected */
+            background-color: #00A47F; 
         }
         #correlationSlider {
             margin-left: 10px;
             width: 200px;
-            background-color: #BEEF9F; /* Light Green for the slider background */
+            background-color: #BEEF9F; 
         }
         label {
             font-size: 14px;
-            color: #2B26A5; /* Dark Green for the label */
+            color: #2B26A5;
+        }
+        #vennDiagram {
+            margin: 20px auto;
+            text-align: center;
         }
     </style>
 </head>
@@ -67,13 +64,7 @@
         <input type="range" id="correlationSlider" min="-1" max="1" step="0.01" value="0">
         <label for="correlationSlider">Correlation: <span id="correlationValue">0</span></label>
     </div>
-    <div class="stats">
-        <p id="meanX">Mean(x): </p>
-        <p id="meanY">Mean(y): </p>
-        <p id="sdX">SD(x): </p>
-        <p id="sdY">SD(y): </p>
-    </div>
-
+    <div id="vennDiagram"></div>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="script.js"></script>
 </body>
