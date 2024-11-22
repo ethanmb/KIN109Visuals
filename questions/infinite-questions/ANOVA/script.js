@@ -49,6 +49,14 @@ function generateProblem() {
 
     // Show the first step
     showStep("step-1-hypotheses");
+
+    // Reset buttons
+    document.getElementById("validate-ms").disabled = true;
+    document.getElementById("validate-f").disabled = true;
+
+    // Ensure they appear grey
+    document.getElementById("validate-ms").style.backgroundColor = "grey";
+    document.getElementById("validate-f").style.backgroundColor = "grey";
 }
 
 
@@ -239,23 +247,23 @@ function validateSSColumn() {
 
     // Validate SS Between
     if (Math.abs(userSSBetween - ssBetween) < 0.01) {
-        feedbackMessage += "✔️ SS Between is correct.<br>";
+        feedbackMessage += `<div style="color: green;">✔️ SS Between is correct.</div>`;
     } else {
-        feedbackMessage += `❌ SS Between is incorrect. Expected: ${ssBetween.toFixed(2)}.<br>`;
+        feedbackMessage += `<div style="color: red;">❌ SS Between is incorrect. Expected: ${ssBetween.toFixed(2)}.</div>`;
     }
 
     // Validate SS Within
     if (Math.abs(userSSWithin - ssWithin) < 0.01) {
-        feedbackMessage += "✔️ SS Within is correct.<br>";
+        feedbackMessage += `<div style="color: green;">✔️ SS Within is correct.</div>`;
     } else {
-        feedbackMessage += `❌ SS Within is incorrect. Expected: ${ssWithin.toFixed(2)}.<br>`;
+        feedbackMessage += `<div style="color: red;">❌ SS Within is incorrect. Expected: ${ssWithin.toFixed(2)}.</div>`;
     }
 
     // Validate SS Total
     if (Math.abs(userSSTotal - ssTotal) < 0.01) {
-        feedbackMessage += "✔️ SS Total is correct.<br>";
+        feedbackMessage += `<div style="color: green;">✔️ SS Total is correct.</div>`;
     } else {
-        feedbackMessage += `❌ SS Total is incorrect. Expected: ${ssTotal.toFixed(2)}.<br>`;
+        feedbackMessage += `<div style="color: red;">❌ SS Total is incorrect. Expected: ${ssTotal.toFixed(2)}.</div>`;
     }
 
     console.log("Group 1 Mean:", group1.mean);
@@ -267,9 +275,85 @@ function validateSSColumn() {
 
     // Display Feedback
     feedback.innerHTML = feedbackMessage;
-    feedback.style.color = feedbackMessage.includes("❌") ? "red" : "green";
+
+    // Enable MS button if SS validation passes
+    const msButton = document.getElementById("validate-ms");
+    if (!feedbackMessage.includes("❌")) {
+        msButton.disabled = false;
+        msButton.style.backgroundColor = ""; // Reset to active style
+    }
 }
 
+function validateMSColumn() {
+    // Step 1: Retrieve generated data and SS values
+    const currentProblem = problems[problems.length - 1];
+    const { dfBetween, dfWithin } = currentProblem;
+
+    const ssBetween = parseFloat(document.getElementById("ss-between").value);
+    const ssWithin = parseFloat(document.getElementById("ss-within").value);
+
+    // Step 2: Calculate MS Between and MS Within
+    const msBetween = ssBetween / dfBetween;
+    const msWithin = ssWithin / dfWithin;
+
+    // Step 3: Retrieve user inputs
+    const userMSBetween = parseFloat(document.getElementById("ms-between").value);
+    const userMSWithin = parseFloat(document.getElementById("ms-within").value);
+
+    // Step 4: Validate user inputs
+    const feedback = document.getElementById("anova-feedback");
+    let feedbackMessage = "";
+
+    // Validate MS Between
+    if (Math.abs(userMSBetween - msBetween) < 0.01) {
+        feedbackMessage += `<div style="color: green;">✔️ MS Between is correct.</div>`;
+    } else {
+        feedbackMessage += `<div style="color: red;">❌ MS Between is incorrect. Expected: ${msBetween.toFixed(2)}.</div>`;
+    }
+
+    // Validate MS Within
+    if (Math.abs(userMSWithin - msWithin) < 0.01) {
+        feedbackMessage += `<div style="color: green;">✔️ MS Within is correct.</div>`;
+    } else {
+        feedbackMessage += `<div style="color: red;">❌ MS Within is incorrect. Expected: ${msWithin.toFixed(2)}.</div>`;
+    }
+
+    // Display Feedback
+    feedback.innerHTML = feedbackMessage;
+    // Enable F button if MS validation passes
+    const fButton = document.getElementById("validate-f");
+    if (!feedbackMessage.includes("❌")) {
+        fButton.disabled = false;
+        fButton.style.backgroundColor = ""; // Reset to active style
+    }
+}
+
+function validateFColumn() {
+    // Step 1: Retrieve user inputs for MS Between and MS Within
+    const userMSBetween = parseFloat(document.getElementById("ms-between").value);
+    const userMSWithin = parseFloat(document.getElementById("ms-within").value);
+    const userFStatistic = parseFloat(document.getElementById("f-statistic").value);
+
+    // Step 2: Calculate the F-statistic
+    const calculatedFStatistic = userMSBetween / userMSWithin;
+
+    // Step 3: Validate user input for F-statistic
+    const feedback = document.getElementById("anova-feedback");
+    let feedbackMessage = "";
+
+    if (Math.abs(userFStatistic - calculatedFStatistic) < 0.01) {
+        feedbackMessage += `<div style="color: green;">✔️ F-Statistic is correct.</div>`;
+        feedback.innerHTML = feedbackMessage;
+        showStep("step-5-decision");
+        document.getElementById("calculated-f-display").innerText = calculatedFStatistic.toFixed(2);
+        document.getElementById("critical-f-display").innerText = document.getElementById("critical-f-value").value;
+    } else {
+        feedbackMessage += `<div style="color: red;">❌ F-Statistic is incorrect. Expected: ${calculatedFStatistic.toFixed(2)}.</div>`;
+    }
+
+    // Display Feedback
+    feedback.innerHTML = feedbackMessage;
+}
 
 
 // Event listeners
@@ -280,3 +364,5 @@ document.getElementById("submit-critical-f-button").addEventListener("click", ch
 document.getElementById("validate-ss").addEventListener("click", validateSSColumn);
 document.getElementById("f-table-toggle-button").addEventListener("click", toggleFTable);
 document.getElementById("close-f-table-button").addEventListener("click", closeFTable);
+document.getElementById("validate-ms").addEventListener("click", validateMSColumn);
+document.getElementById("validate-f").addEventListener("click", validateFColumn);

@@ -25,7 +25,7 @@
                 H₀: μ₁ <span class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ₂ <span class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> μ₃
             </div>
             <div>
-                H₁: At least one group mean differs.
+                Hₐ: At least one group mean differs.
             </div>
             <p>Available symbols: 
                 <span draggable="true" ondragstart="drag(event)">=</span>,
@@ -78,8 +78,8 @@
                         <th>Source</th>
                         <th>SS <br><button id="validate-ss" class="validate-button">Check SS</button></th>
                         <th>df</th>
-                        <th>MS <br><button id="validate-ms" class="validate-button">Check MS</button></th>
-                        <th>F <br><button id="validate-f" class="validate-button">Check F</button></th>
+                        <th>MS <br><button id="validate-ms" class="validate-button" disabled>Check MS</button></th>
+                        <th>F <br><button id="validate-f" class="validate-button" disabled>Check F</button></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -112,6 +112,29 @@
         </div>
 
 
+        <!-- Step 5: Accept or Reject H₀ -->
+        <div id="step-5-decision" class="hidden">
+            <p><strong>Step 5: Accept or Reject H₀</strong></p>
+            <p>
+                Based on the calculated F-statistic and the critical F-value, decide whether to reject or fail to reject H₀:
+            </p>
+            <p>F-statistic: <span id="calculated-f-display">N/A</span></p>
+            <p>Critical F-value: <span id="critical-f-display">N/A</span></p>
+
+            <!-- Decision Options -->
+            <label>
+                <input type="radio" name="decision" value="reject"> Reject H₀
+            </label>
+            <br>
+            <label>
+                <input type="radio" name="decision" value="fail"> Fail to Reject H₀
+            </label>
+
+            <button id="submit-decision-button">Submit Decision</button>
+
+            <!-- Feedback -->
+            <div id="decision-feedback"></div>
+        </div>
 
 
 
