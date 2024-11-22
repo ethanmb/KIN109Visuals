@@ -39,10 +39,20 @@ function generateProblem() {
     // Randomly generate a sample size between 3 and 10
     const n = Math.floor(Math.random() * 8) + 3; // Generates a random number between 3 and 10
 
-    // Randomized data generation for groups
-    const group1 = { mean: (10 + Math.random() * 40).toFixed(2), sd: (1 + Math.random() * 4).toFixed(2), n };
-    const group2 = { mean: (10 + Math.random() * 40).toFixed(2), sd: (1 + Math.random() * 4).toFixed(2), n };
-    const group3 = { mean: (10 + Math.random() * 40).toFixed(2), sd: (1 + Math.random() * 4).toFixed(2), n };
+    // Randomized data generation for Group 1
+    const group1Mean = (10 + Math.random() * 40).toFixed(2);
+    const group1SD = (1 + Math.random() * 4).toFixed(2);
+    const group2SD = (1 + Math.random() * 4).toFixed(2);
+    const group3SD = (1 + Math.random() * 4).toFixed(2);
+
+    // Generate Group 2 and Group 3 means based on Group 1
+    const group2Mean = (parseFloat(group1Mean) + parseFloat(group1SD) * (Math.random() * 0.8 + 0.8)).toFixed(2);
+    const group3Mean = (parseFloat(group1Mean) - parseFloat(group1SD) * (Math.random() * 0.8 + 0.8)).toFixed(2);
+
+    // Define group data
+    const group1 = { mean: group1Mean, sd: group1SD, n };
+    const group2 = { mean: group2Mean, sd: group2SD, n }; // Reuse Group 1's SD
+    const group3 = { mean: group3Mean, sd: group3SD, n }; // Reuse Group 1's SD
 
     // Total sample size
     const totalSampleSize = group1.n + group2.n + group3.n;
