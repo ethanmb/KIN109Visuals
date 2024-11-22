@@ -9,6 +9,30 @@ function showStep(stepId) {
     }
 }
 
+function hideAllSteps() {
+    // Select all step containers except the problem description
+    const steps = document.querySelectorAll(".container > div:not(.problem-area):not(.header)");
+    steps.forEach(step => step.classList.add("hidden"));
+
+    // Clear all feedback messages
+    document.getElementById("anova-feedback").innerHTML = "";
+    document.getElementById("critical-f-feedback").innerHTML = "";
+    document.getElementById("decision-feedback").innerHTML = "";
+    document.getElementById("hypotheses-feedback").innerHTML = "";
+
+    // Reset hypothesis inputs
+    const hypothesisDrops = document.querySelectorAll("#step-1-hypotheses .drop-area");
+    hypothesisDrops.forEach(drop => {
+        drop.innerText = "[Drop Here]";
+    });
+
+    // Show only Step 1 (Hypotheses step)
+    showStep("step-1-hypotheses");
+}
+
+
+
+
 function generateProblem() {
     const problemDescription = document.getElementById("problem-description");
 
@@ -47,8 +71,7 @@ function generateProblem() {
     // Update the problem display
     problemDescription.innerHTML = problemText;
 
-    // Show the first step
-    showStep("step-1-hypotheses");
+    hideAllSteps();
 
     // Reset buttons
     document.getElementById("validate-ms").disabled = true;
@@ -57,7 +80,34 @@ function generateProblem() {
     // Ensure they appear grey
     document.getElementById("validate-ms").style.backgroundColor = "grey";
     document.getElementById("validate-f").style.backgroundColor = "grey";
+
+    // Reset all feedback messages
+    document.getElementById("anova-feedback").innerHTML = "";
+    document.getElementById("critical-f-feedback").innerHTML = "";
+    document.getElementById("df-feedback").innerHTML = "";
+    document.getElementById("decision-feedback").innerHTML = "";
+    document.getElementById("hypotheses-feedback").innerHTML = "";
+
+    // Clear all input fields
+    document.querySelectorAll("input").forEach(input => {
+        if (input.type === "number" || input.type === "text") {
+            input.value = "";
+        } else if (input.type === "radio") {
+            input.checked = false;
+        }
+    });
+
+    // Reset displayed values for F and critical F
+    document.getElementById("calculated-f-display").innerText = "N/A";
+    document.getElementById("critical-f-display").innerText = "N/A";
+
+    // Hide the "Generate New Problem" button
+    const newProblemButton = document.getElementById("generate-new-problem-button");
+    if (newProblemButton) {
+        newProblemButton.classList.add("hidden");
+    }
 }
+
 
 
 
@@ -355,6 +405,36 @@ function validateFColumn() {
     feedback.innerHTML = feedbackMessage;
 }
 
+function submitDecision() {
+    // Step 1: Retrieve user selection
+    const decision = document.querySelector('input[name="decision"]:checked');
+    if (!decision) {
+        // No option selected
+        document.getElementById("decision-feedback").innerHTML = `<div style="color: red;">❌ Please select a decision.</div>`;
+        return;
+    }
+
+    const userDecision = decision.value;
+
+    // Step 2: Retrieve calculated and critical F-values
+    const calculatedF = parseFloat(document.getElementById("calculated-f-display").innerText);
+    const criticalF = parseFloat(document.getElementById("critical-f-display").innerText);
+
+    // Step 3: Determine correct decision
+    const correctDecision = calculatedF > criticalF ? "reject" : "fail";
+
+    // Step 4: Provide feedback
+    const feedback = document.getElementById("decision-feedback");
+    if (userDecision === correctDecision) {
+        feedback.innerHTML = `<div style="color: green;">✔️ Correct! ${userDecision === "reject" ? "Reject" : "Fail to reject"} H₀.</div>`;
+        // Show the "Generate New Problem" button
+        const newProblemButton = document.getElementById("generate-new-problem-button");
+        newProblemButton.classList.remove("hidden");
+    } else {
+        feedback.innerHTML = `<div style="color: red;">❌ Incorrect. You should ${correctDecision === "reject" ? "Reject" : "Fail to reject"} H₀.</div>`;
+    }
+}
+
 
 // Event listeners
 document.getElementById("generate-problem-button").addEventListener("click", generateProblem);
@@ -366,3 +446,5 @@ document.getElementById("f-table-toggle-button").addEventListener("click", toggl
 document.getElementById("close-f-table-button").addEventListener("click", closeFTable);
 document.getElementById("validate-ms").addEventListener("click", validateMSColumn);
 document.getElementById("validate-f").addEventListener("click", validateFColumn);
+document.getElementById("submit-decision-button").addEventListener("click", submitDecision);
+document.getElementById("generate-new-problem-button").addEventListener("click", generateProblem);

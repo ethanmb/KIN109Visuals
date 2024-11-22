@@ -134,3 +134,7 @@ table input {
     font-weight: bold;
     text-align: center;
 }
+
+.hidden {
+    display: none;
+}
