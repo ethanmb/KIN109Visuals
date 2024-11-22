@@ -76,10 +76,12 @@ function generateProblem() {
     // Reset buttons
     document.getElementById("validate-ms").disabled = true;
     document.getElementById("validate-f").disabled = true;
+    document.getElementById("validate-eta").disabled = true;
 
     // Ensure they appear grey
     document.getElementById("validate-ms").style.backgroundColor = "grey";
     document.getElementById("validate-f").style.backgroundColor = "grey";
+    document.getElementById("validate-eta").style.backgroundColor = "grey";
 
     // Reset all feedback messages
     document.getElementById("anova-feedback").innerHTML = "";
@@ -394,7 +396,6 @@ function validateFColumn() {
     if (Math.abs(userFStatistic - calculatedFStatistic) < 0.01) {
         feedbackMessage += `<div style="color: green;">✔️ F-Statistic is correct.</div>`;
         feedback.innerHTML = feedbackMessage;
-        showStep("step-5-decision");
         document.getElementById("calculated-f-display").innerText = calculatedFStatistic.toFixed(2);
         document.getElementById("critical-f-display").innerText = document.getElementById("critical-f-value").value;
     } else {
@@ -403,7 +404,37 @@ function validateFColumn() {
 
     // Display Feedback
     feedback.innerHTML = feedbackMessage;
+    const etaButton = document.getElementById("validate-eta");
+    if (!feedbackMessage.includes("❌")) {
+        etaButton.disabled = false;
+        etaButton.style.backgroundColor = ""; // Reset to active style
+    }
 }
+
+function validateEtaSquared() {
+    // Retrieve user inputs for SS Between and SS Total
+    const ssBetween = parseFloat(document.getElementById("ss-between").value);
+    const ssTotal = parseFloat(document.getElementById("ss-total").value);
+    const userEtaSquared = parseFloat(document.getElementById("eta-squared-input").value);
+
+    // Calculate expected \( \eta^2 \)
+    const calculatedEtaSquared = ssBetween / ssTotal;
+
+    // Feedback element
+    const feedback = document.getElementById("anova-feedback");
+    let feedbackMessage = "";
+
+    if (Math.abs(userEtaSquared - calculatedEtaSquared) < 0.01) {
+        feedbackMessage = `<div style="color: green;">✔️ Correct! η^2 = ${calculatedEtaSquared.toFixed(2)}.</div>`;
+        showStep("step-5-decision");
+    } else {
+        feedbackMessage = `<div style="color: red;">❌ Incorrect. Expected η^2 = ${calculatedEtaSquared.toFixed(2)}.</div>`;
+    }
+
+    // Display feedback
+    feedback.innerHTML = feedbackMessage;
+}
+
 
 function submitDecision() {
     // Step 1: Retrieve user selection
@@ -448,3 +479,4 @@ document.getElementById("validate-ms").addEventListener("click", validateMSColum
 document.getElementById("validate-f").addEventListener("click", validateFColumn);
 document.getElementById("submit-decision-button").addEventListener("click", submitDecision);
 document.getElementById("generate-new-problem-button").addEventListener("click", generateProblem);
+document.getElementById("validate-eta").addEventListener("click", validateEtaSquared);
