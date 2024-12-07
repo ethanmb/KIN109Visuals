@@ -71,9 +71,9 @@ function generateProblem() {
         in their horizontal foot speed. She classified sprinters into three groups based on sprint times.
         The horizontal foot speed at touchdown in feet per second was analyzed:
         <ul>
-            <li>Group 1: Mean = ${group1.mean}, SD = ${group1.sd}, N = ${group1.n}</li>
-            <li>Group 2: Mean = ${group2.mean}, SD = ${group2.sd}, N = ${group2.n}</li>
-            <li>Group 3: Mean = ${group3.mean}, SD = ${group3.sd}, N = ${group3.n}</li>
+            <li>Group 1: Mean = ${group1.mean}, SD = ${group1.sd}, n = ${group1.n}</li>
+            <li>Group 2: Mean = ${group2.mean}, SD = ${group2.sd}, n = ${group2.n}</li>
+            <li>Group 3: Mean = ${group3.mean}, SD = ${group3.sd}, n = ${group3.n}</li>
         </ul>
         Conduct a hypothesis test with α = 0.05.
     `;
