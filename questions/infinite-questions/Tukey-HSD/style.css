@@ -21,10 +21,10 @@ body {
     background: #f9f9f9;
     border: 1px solid #ddd;
     padding: 20px;
-    position: absolute;
-    top: 20%;
-    left: 20%;
-    width: 60%;
+    position: fixed;
+    top: 10%;
+    right: 0;
+    width: 40%;
     z-index: 1000;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
@@ -35,6 +35,40 @@ body {
     display: block;
     margin: auto;
 }
+
+.validate-button {
+    margin-top: 5px;
+    padding: 5px 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.validate-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#calculation-area table {
+    margin-top: 20px;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#calculation-area td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#calculation-area input:disabled {
+    background-color: #f0f0f0;
+    color: #555;
+    border: 1px solid #ccc;
+}
+
 
 #q-table button {
     display: block;
