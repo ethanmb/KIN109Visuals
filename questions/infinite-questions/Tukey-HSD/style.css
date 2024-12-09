@@ -51,6 +51,13 @@ body {
     cursor: not-allowed;
 }
 
+#hsd-formula {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+
 #calculation-area table {
     margin-top: 20px;
     border-collapse: collapse;

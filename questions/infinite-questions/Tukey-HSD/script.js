@@ -8,6 +8,13 @@ function generateRawData(mean, sd, n) {
     });
 }
 
+function renderHSDFormula() {
+    const formulaContainer = document.getElementById("hsd-formula");
+    formulaContainer.innerHTML = `\\[ \\text{HSD} = q \\cdot \\sqrt{\\frac{\\text{MS}_{\\text{error}}}{n}} \\]`;
+    MathJax.typeset(); // Re-render MathJax content
+}
+
+
 function clearTable() {
     // Reset all inputs
     document.querySelectorAll("#calculation-area input").forEach(input => {
@@ -352,4 +359,7 @@ document.getElementById("validate-hsd").addEventListener("click", validateHSD);
 document.getElementById("generate-new-problem-button").addEventListener("click", () => {
     clearTable(); // Clear the table
     generateProblem(); // Generate new problem
+});
+document.addEventListener("DOMContentLoaded", () => {
+    renderHSDFormula(); // Render HSD formula on page load
 });
