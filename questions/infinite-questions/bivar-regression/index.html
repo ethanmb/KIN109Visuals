@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Bivariate Linear Regression Practice</title>
@@ -38,6 +39,9 @@
         .incorrect {
             color: red;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -71,114 +75,95 @@
     <p class="feedback" id="equation-feedback"></p>
 </div>
 
-<div class="question-container">
-    <h2>Step 4: Make a Prediction</h2>
-    <p>Use the regression equation to predict <span id="outcome-variable"></span> for a student with <span id="predictor-variable"></span> of <span id="predict-x"></span>.</p>
-    <p>Enter your predicted value: <input type="number" id="prediction" class="input-field" step="0.01"> <button class="button" onclick="checkPrediction()">Submit</button></p>
-    <p class="feedback" id="prediction-feedback"></p>
-</div>
-
-<button class="button" onclick="generateNewProblem()">Generate New Problem</button>
+<button id="new-problem-button" class="button hidden" onclick="generateNewProblem()">Generate New Problem</button>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        let meanX, meanY, sdX, sdY, r, slope, intercept, predictionX;
+        let meanX, meanY, sdX, sdY, r, slope, intercept;
         const scenarios = [
             { predictor: "weekly physical activity hours", outcome: "resting heart rate (bpm)" },
             { predictor: "weight lifted (kg)", outcome: "VO₂ max (ml/kg/min)" },
             { predictor: "training duration (minutes)", outcome: "recovery time (minutes)" }
         ];
-
+    
         function generateNewProblem() {
             const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
-            document.getElementById("scenario").innerText = `A researcher wants to investigate whether  ${scenario.predictor} predicts ${scenario.outcome} among university students. Complete the steps to determine the regression equation and make a prediction.`;
-            document.getElementById("predictor-variable").innerText = scenario.predictor;
-            document.getElementById("outcome-variable").innerText = scenario.outcome;
-
-            meanX = Math.floor(Math.random() * 6) + 3; // Random mean between 3 and 8
-            meanY = Math.floor(Math.random() * 21) + 60; // Random mean between 60 and 80
-            sdX = Math.random() * 2 + 1; // Random SD between 1 and 3
-            sdY = Math.random() * 5 + 5; // Random SD between 5 and 10
-            r = (Math.random() * 1.8 - 0.9).toFixed(2); // Random r between -0.9 and 0.9
-            predictionX = Math.floor(Math.random() * 6) + 5; // Random prediction X between 5 and 10
-
+            document.getElementById("scenario").innerText = `A researcher wants to investigate whether ${scenario.predictor} predicts ${scenario.outcome} among university students. Complete the steps to determine the regression equation.`;
+            
+            meanX = Math.floor(Math.random() * 6) + 3; 
+            meanY = Math.floor(Math.random() * 21) + 60; 
+            sdX = Math.random() * 2 + 1;
+            sdY = Math.random() * 5 + 5;
+            r = (Math.random() * 1.8 - 0.9).toFixed(2); 
+        
             slope = (r * (sdY / sdX)).toFixed(2);
             intercept = (meanY - slope * meanX).toFixed(2);
-
+        
             document.getElementById("data-summary").innerText = `Mean ${scenario.predictor} = ${meanX}
-Mean ${scenario.outcome} = ${meanY}
-Standard deviation of ${scenario.predictor} = ${sdX.toFixed(2)}
-Standard deviation of ${scenario.outcome} = ${sdY.toFixed(2)}
-Correlation coefficient = ${r}`;
-            document.getElementById("predict-x").innerText = `${predictionX}`;
-
-            clearFeedback();
-        }
-
-        function clearFeedback() {
+        Mean ${scenario.outcome} = ${meanY}
+        Standard deviation of ${scenario.predictor} = ${sdX.toFixed(2)}
+        Standard deviation of ${scenario.outcome} = ${sdY.toFixed(2)}
+        Correlation coefficient = ${r}`;
+            
+            // Clear feedback messages
             document.getElementById("slope-feedback").innerText = "";
             document.getElementById("intercept-feedback").innerText = "";
             document.getElementById("equation-feedback").innerText = "";
-            document.getElementById("prediction-feedback").innerText = "";
+        
+            // Clear input fields
+            document.getElementById("slope").value = "";
+            document.getElementById("intercept").value = "";
+            document.getElementById("equation").value = "";
+        
+            // Hide the new problem button initially
+            document.getElementById("new-problem-button").classList.add("hidden");
         }
-
+        
+    
         function checkSlope() {
             const userSlope = parseFloat(document.getElementById("slope").value);
             if (Math.abs(userSlope - slope) < 0.01) {
                 document.getElementById("slope-feedback").innerText = "Correct!";
                 document.getElementById("slope-feedback").className = "feedback correct";
             } else {
-                document.getElementById("slope-feedback").innerText = "Incorrect. Try again.";
+                document.getElementById("slope-feedback").innerText = `Incorrect. The correct slope is: ${slope}`;
                 document.getElementById("slope-feedback").className = "feedback incorrect";
             }
         }
-
+    
         function checkIntercept() {
             const userIntercept = parseFloat(document.getElementById("intercept").value);
             if (Math.abs(userIntercept - intercept) < 0.01) {
                 document.getElementById("intercept-feedback").innerText = "Correct!";
                 document.getElementById("intercept-feedback").className = "feedback correct";
             } else {
-                document.getElementById("intercept-feedback").innerText = "Incorrect. Try again.";
+                document.getElementById("intercept-feedback").innerText = `Incorrect. The correct intercept is: ${intercept}`;
                 document.getElementById("intercept-feedback").className = "feedback incorrect";
             }
         }
-
+    
         function checkEquation() {
             const userEquation = document.getElementById("equation").value;
             const correctEquation = `Ŷ = ${intercept} + ${slope}X`;
             if (userEquation === correctEquation) {
                 document.getElementById("equation-feedback").innerText = "Correct!";
                 document.getElementById("equation-feedback").className = "feedback correct";
+                document.getElementById("new-problem-button").classList.remove("hidden");
             } else {
                 document.getElementById("equation-feedback").innerText = `Incorrect. The correct equation is: ${correctEquation}`;
                 document.getElementById("equation-feedback").className = "feedback incorrect";
             }
         }
-
-        function checkPrediction() {
-            const userPrediction = parseFloat(document.getElementById("prediction").value);
-            const correctPrediction = (intercept + slope * predictionX).toFixed(2);
-            if (Math.abs(userPrediction - correctPrediction) < 0.01) {
-                document.getElementById("prediction-feedback").innerText = "Correct!";
-                document.getElementById("prediction-feedback").className = "feedback correct";
-            } else {
-                document.getElementById("prediction-feedback").innerText = `Incorrect. The correct prediction is: ${correctPrediction}`;
-                document.getElementById("prediction-feedback").className = "feedback incorrect";
-            }
-        }
-
-        // Expose functions to the global scope for button click events
+    
         window.generateNewProblem = generateNewProblem;
         window.checkSlope = checkSlope;
         window.checkIntercept = checkIntercept;
         window.checkEquation = checkEquation;
-        window.checkPrediction = checkPrediction;
-
+    
         generateNewProblem();
     });
-</script>
-
+    </script>
+    
 
 </body>
 </html>
