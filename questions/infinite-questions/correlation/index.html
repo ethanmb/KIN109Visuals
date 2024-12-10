@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstat/dist/jstat.min.js"></script>
+    <title>Correlation Hypothesis Testing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        #generate-problem-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        #generate-problem-button:hover {
+            background-color: #45a049;
+        }
+        
+        #r-table img {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .draggable {
+            display: inline-block;
+            padding: 10px;
+            margin: 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: grab;
+        }
+        .drop-area {
+            display: inline-block;
+            width: 100px;
+            height: 30px;
+            border: 2px dashed #ccc;
+            margin: 0 10px;
+            vertical-align: middle;
+            text-align: center;
+            line-height: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Correlation Hypothesis Testing</h1>
+    <p id="instructions">Follow the steps to complete a hypothesis test for correlation.</p>
+
+    <!-- Step 1: Set the Scenario -->
+    <div id="step-1">
+        <h2>Step 1: Read the Scenario</h2>
+        <p id="scenario">A scenario will appear here.</p>
+        <button onclick="generateScenario()">Generate Problem</button>
+    </div>
+
+     <!-- Step 2: Data Table -->
+     <div id="data-table-container" style="display: none;">
+        <h2>Data Table</h2>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>Participant</th>
+                    <th>Z<sub>X</sub></th>
+                    <th>Z<sub>Y</sub></th>
+                </tr>
+            </thead>
+            <tbody id="data-table-body"></tbody>
+        </table>
+    </div>
+
+    <!-- Step 2: Set Up the Hypotheses -->
+    <div id="step-2" style="display: none;">
+        <h2>Step 2: Write the Hypotheses</h2>
+        <p>Drag the appropriate symbol into the boxes to complete the hypotheses.</p>
+        <p id="h0-text">H₀: ρ <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0</p>
+        <p id="h1-text">H₁: ρ <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0</p>
+        <p>Drag and drop symbols: 
+            <span id="equals" class="draggable" draggable="true" ondragstart="drag(event)">=</span>, 
+            <span id="greater-than" class="draggable" draggable="true" ondragstart="drag(event)">></span>, 
+            <span id="less-than" class="draggable" draggable="true" ondragstart="drag(event)"><</span>, 
+            <span id="not-equal" class="draggable" draggable="true" ondragstart="drag(event)">≠</span>
+        </p>
+        <button onclick="checkHypotheses()">Check Hypotheses</button>
+        <div id="result-step2" class="result"></div>
+    </div>
+
+    <!-- Step 3: Compute the Test Statistic -->
+    <div id="step-3" style="display: none;">
+        <h2>Step 3: Compute the Test Statistic</h2>
+        <p>Enter the sum of products (ΣZ<sub>X</sub>Z<sub>Y</sub>) and calculate the correlation coefficient (r).</p>
+        <p>Formula: \( r = \frac{\Sigma Z_X Z_Y}{n - 1} \)</p>
+        <p>Sum of Products: <input type="number" id="sum-of-products" step="0.01"> </p>
+        <p>Correlation Coefficient: <input type="number" id="correlation" step="0.01"> </p>
+        <button onclick="checkTestStatistic()">Submit</button>
+        <div id="result-step3" class="result"></div>
+    </div>
+
+    <!-- Step 4: Compare to Critical Value -->
+    <div id="step-4" style="display: none;">
+        <h2>Step 4: Compare to Critical Value</h2>
+        <p>The calculated correlation coefficient (r) is <span id="calculated-r"></span>.</p>
+        <p>Enter the critical value (±r<sub>critical</sub>) for the given degrees of freedom and test type:</p>
+        <button id="r-table-toggle-button" style="background-color: green; color: white;">Open r Table</button>
+        <div id="r-table" class="hidden">
+            <img src="assets/q-table.png" alt="Pearson's r Critical Table" style="width: 100%; max-width: 600px; margin-top: 10px;">
+        </div>
+
+        <p>
+            Critical Value: 
+            <input type="number" id="user-critical-value" step="0.001">
+            <button onclick="checkCriticalValue()">Check Critical Value</button>
+        </p>
+        <div id="result-critical-value" class="result"></div>
+        <p>Decision: 
+            <select id="decision">
+                <option value="">-- Select Decision --</option>
+                <option value="reject">Reject H₀</option>
+                <option value="fail-to-reject">Fail to Reject H₀</option>
+            </select>
+            <button onclick="checkDecision()">Submit Decision</button>
+        </p>
+        <div id="result-step4" class="result"></div>
+    </div>
+
+
+    <!-- Step 5: Effect Size -->
+    <div id="step-5" style="display: none;">
+        <h2>Step 5: Calculate Effect Size</h2>
+        <p>Formula: \( r^2 = r^2 \)</p>
+        <p>Enter the effect size (r²): <input type="number" id="effect-size" step="0.01"></p>
+        <button onclick="checkEffectSize()">Submit</button>
+        <button id="generate-problem-button" class="hidden" onclick="generateNewProblem()">Generate New Problem</button>
+        <div id="result-step5" class="result"></div>
+        
+
+    </div>
+
+    
+
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
