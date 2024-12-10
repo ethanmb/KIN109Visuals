@@ -109,10 +109,10 @@
     <div id="step-1">
         <h2>Step 1: Read the Scenario</h2>
         <p id="scenario">A scenario will appear here.</p>
-        <button onclick="generateScenario()">Generate Problem</button>
+        <button onclick="generateNewProblem()">Generate Problem</button>
     </div>
 
-     <!-- Step 2: Data Table -->
+     <!-- Data Table -->
      <div id="data-table-container" style="display: none;">
         <h2>Data Table</h2>
         <table id="data-table">
@@ -127,9 +127,26 @@
         </table>
     </div>
 
-    <!-- Step 2: Set Up the Hypotheses -->
+    <!-- Step 2: Compute Correlation Coefficient -->
     <div id="step-2" style="display: none;">
-        <h2>Step 2: Write the Hypotheses</h2>
+        <h2>Step 2: Find the Critical Coefficient</h2>
+        <p>The calculated correlation coefficient (r) is <span id="calculated-r"></span>.</p>
+        <p>Enter the critical value (±r<sub>critical</sub>) for the given degrees of freedom and test type:</p>
+        <button id="r-table-toggle-button" style="background-color: green; color: white;">Open r Table</button>
+        <div id="r-table" class="hidden">
+            <img src="assets/q-table.png" alt="Pearson's r Critical Table" style="width: 100%; max-width: 600px; margin-top: 10px;">
+        </div>
+        <p>
+            Critical Value: 
+            <input type="number" id="user-critical-value" step="0.001">
+            <button onclick="checkCriticalValue()">Check Critical Value</button>
+        </p>
+        <div id="result-critical-value" class="result"></div>
+    </div>
+
+    <!-- Step 3: Set Up the Hypotheses -->
+    <div id="step-3" style="display: none;">
+        <h2>Step 3: Set Up the Hypotheses</h2>
         <p>Drag the appropriate symbol into the boxes to complete the hypotheses.</p>
         <p id="h0-text">H₀: ρ <span id="h0-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0</p>
         <p id="h1-text">H₁: ρ <span id="h1-symbol-drop" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">[Drop Here]</span> 0</p>
@@ -140,12 +157,27 @@
             <span id="not-equal" class="draggable" draggable="true" ondragstart="drag(event)">≠</span>
         </p>
         <button onclick="checkHypotheses()">Check Hypotheses</button>
-        <div id="result-step2" class="result"></div>
+        <div id="result-hypo" class="result"></div>
     </div>
 
-    <!-- Step 3: Compute the Test Statistic -->
-    <div id="step-3" style="display: none;">
-        <h2>Step 3: Compute the Test Statistic</h2>
+    <!-- Step 4: Rejection Rule -->
+    <div id="step-4" style="display: none;">
+        <h2>Step 4: Write the Rejection Rule</h2>
+        <p>Based on the test type and critical value(s), write a statistical rejection rule for this hypothesis test.</p>
+        <p>Test Type: <span id="test-type-display"></span></p>
+        <p>Critical Value: ±<span id="critical-value-display"></span></p>
+    
+        <p>Write the rejection rule (e.g., "Reject H0 if r..."): </p>
+        <textarea id="rejection-rule" rows="3" cols="60" placeholder="Write your rule here..."></textarea>
+        <button onclick="checkRejectionRule()">Submit</button>
+    
+        <div id="result-rejection-rule" class="result"></div>
+    </div>
+    
+
+    <!-- Step 5: Compute the Test Statistic -->
+    <div id="step-5" style="display: none;">
+        <h2>Step 5: Compute the Test Statistic</h2>
         <p>Enter the sum of products (ΣZ<sub>X</sub>Z<sub>Y</sub>) and calculate the correlation coefficient (r).</p>
         <p>Formula: \( r = \frac{\Sigma Z_X Z_Y}{n - 1} \)</p>
         <p>Sum of Products: <input type="number" id="sum-of-products" step="0.01"> </p>
@@ -154,22 +186,9 @@
         <div id="result-step3" class="result"></div>
     </div>
 
-    <!-- Step 4: Compare to Critical Value -->
-    <div id="step-4" style="display: none;">
-        <h2>Step 4: Compare to Critical Value</h2>
-        <p>The calculated correlation coefficient (r) is <span id="calculated-r"></span>.</p>
-        <p>Enter the critical value (±r<sub>critical</sub>) for the given degrees of freedom and test type:</p>
-        <button id="r-table-toggle-button" style="background-color: green; color: white;">Open r Table</button>
-        <div id="r-table" class="hidden">
-            <img src="assets/q-table.png" alt="Pearson's r Critical Table" style="width: 100%; max-width: 600px; margin-top: 10px;">
-        </div>
-
-        <p>
-            Critical Value: 
-            <input type="number" id="user-critical-value" step="0.001">
-            <button onclick="checkCriticalValue()">Check Critical Value</button>
-        </p>
-        <div id="result-critical-value" class="result"></div>
+    <!-- Step 6: Make Decision -->
+    <div id="step-6" style="display: none;">
+        <h2>Step 6: Decision</h2>
         <p>Decision: 
             <select id="decision">
                 <option value="">-- Select Decision --</option>
@@ -182,9 +201,9 @@
     </div>
 
 
-    <!-- Step 5: Effect Size -->
-    <div id="step-5" style="display: none;">
-        <h2>Step 5: Calculate Effect Size</h2>
+    <!-- Step 7: Effect Size -->
+    <div id="step-7" style="display: none;">
+        <h2>Step 7: Calculate Effect Size</h2>
         <p>Formula: \( r^2 = r^2 \)</p>
         <p>Enter the effect size (r²): <input type="number" id="effect-size" step="0.01"></p>
         <button onclick="checkEffectSize()">Submit</button>

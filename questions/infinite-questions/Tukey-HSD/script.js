@@ -10,7 +10,7 @@ function generateRawData(mean, sd, n) {
 
 function renderHSDFormula() {
     const formulaContainer = document.getElementById("hsd-formula");
-    formulaContainer.innerHTML = `\\[ \\text{HSD} = q \\cdot \\sqrt{\\frac{\\text{MS}_{\\text{error}}}{n}} \\]`;
+    formulaContainer.innerHTML = `\\[ \\text{HSD} = q \\cdot \\sqrt{\\frac{\\text{MS}_{\\text{WG}}}{n}} \\]`;
     MathJax.typeset(); // Re-render MathJax content
 }
 

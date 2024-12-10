@@ -22,6 +22,24 @@ function toggleRTable() {
 document.getElementById("r-table-toggle-button").addEventListener("click", toggleRTable);
 
 
+function generateData(n, highCorrelation = false) {
+    // Generate data based on correlation type
+    if (highCorrelation) {
+        console.log("high")
+        // Generate highly correlated data
+        const zX = Array.from({ length: n }, () => parseFloat((Math.random() * 2 - 1).toFixed(2))); // Z-scores for X
+        const zY = zX.map(x => parseFloat((x + (Math.random() * 0.05 - 0.01)).toFixed(2))); // Z-scores for Y (strongly correlated)
+        return zX.map((x, i) => ({ zX: x, zY: zY[i] }));
+    } else {
+        // Generate weakly correlated (or uncorrelated) data
+        return Array.from({ length: n }, () => ({
+            zX: parseFloat((Math.random() * 2 - 1).toFixed(2)),
+            zY: parseFloat((Math.random() * 2 - 1).toFixed(2))
+        }));
+    }
+}
+
+
 // Step 1: Generate Scenario
 function generateScenario() {
     // Randomly generate n (sample size) between 5 and 10
@@ -34,11 +52,20 @@ function generateScenario() {
     const testOptions = ["two-tailed", "one-tailed-positive", "one-tailed-negative"];
     testType = testOptions[Math.floor(Math.random() * testOptions.length)];
 
-    // Generate random data for n participants (Z-scores)
-    data = Array.from({ length: n }, () => ({
-        zX: parseFloat((Math.random() * 2 - 1).toFixed(2)), // Random Z-scores for X
-        zY: parseFloat((Math.random() * 2 - 1).toFixed(2))  // Random Z-scores for Y
-    }));
+    // Decide if the data should be highly correlated
+    const highCorrelation = Math.random() < 0.5; // 50% chance of high correlation
+
+    // Generate data
+    data = generateData(n, highCorrelation);
+
+    const df = n - 2;
+    // Retrieve the critical value
+    try {
+        criticalValue = getCriticalValue(df, alpha, testType);
+        console.log(`Critical Value for df=${df}, alpha=${alpha}, testType=${testType}: ±${criticalValue.toFixed(3)}`);
+    } catch (error) {
+        console.error("Error calculating critical value:", error.message);
+    }
 
     // Craft scenario text based on test type
     let scenarioText = `A researcher is testing whether there is a relationship between two variables using a `;
@@ -56,6 +83,14 @@ function generateScenario() {
 
     // Show the data table container
     document.getElementById("data-table-container").style.display = "block";
+
+    document.getElementById("test-type-display").textContent = testType === "two-tailed"
+    ? "Two-Tailed"
+    : testType === "one-tailed-positive"
+    ? "One-Tailed Positive"
+    : "One-Tailed Negative";
+    document.getElementById("critical-value-display").textContent = criticalValue.toFixed(3);
+
 
     // Populate the data table
     populateDataTable();
@@ -91,6 +126,63 @@ function setInstructionsForStep2() {
     document.getElementById("step-3-instructions").textContent = instructions;
 }
 
+function normalizeString(input) {
+    // Convert to lowercase and remove extra spaces
+    return input.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function checkRejectionRule() {
+    const rejectionRule = document.getElementById("rejection-rule").value.trim();
+    const testType = document.getElementById("test-type-display").textContent; // Test type (e.g., "Two-Tailed")
+    const criticalValue = parseFloat(document.getElementById("critical-value-display").textContent); // Critical value
+
+    // Determine the correct rejection rule based on the test type
+    let correctRule;
+    if (testType === "Two-Tailed") {
+        correctRule = `Reject H0 if r < -${criticalValue.toFixed(3)} or r > ${criticalValue.toFixed(3)}`;
+    } else if (testType === "One-Tailed Positive") {
+        correctRule = `Reject H0 if r > ${criticalValue.toFixed(3)}`;
+    } else if (testType === "One-Tailed Negative") {
+        correctRule = `Reject H0 if r < -${criticalValue.toFixed(3)}`;
+    } else {
+        const fallbackRule = `Two-Tailed: Reject H0 if r < -${criticalValue.toFixed(3)} or r > ${criticalValue.toFixed(3)}; ` +
+                             `One-Tailed Positive: Reject H0 if r > ${criticalValue.toFixed(3)}; ` +
+                             `One-Tailed Negative: Reject H0 if r < -${criticalValue.toFixed(3)}.`;
+        document.getElementById("result-rejection-rule").textContent = `Error: Invalid test type. Valid rejection rules are:\n${fallbackRule}`;
+        document.getElementById("result-rejection-rule").className = "result incorrect";
+        return;
+    }
+
+    // Normalize user input for comparison
+    const normalizedUserRule = normalizeString(rejectionRule);
+    const normalizedCorrectRule = normalizeString(correctRule);
+
+    // Special handling for Two-Tailed Test
+    if (testType === "Two-Tailed") {
+        const startsCorrectly = normalizedUserRule.startsWith("reject h0 if");
+        const includesLower = normalizedUserRule.includes(`r < -${criticalValue.toFixed(3)}`);
+        const includesUpper = normalizedUserRule.includes(`r > ${criticalValue.toFixed(3)}`);
+
+        if (startsCorrectly && includesLower && includesUpper) {
+            document.getElementById("result-rejection-rule").textContent = "Correct! Your rejection rule is valid.";
+            document.getElementById("result-rejection-rule").className = "result correct";
+            document.getElementById("step-5").style.display = "block"; // Proceed to the next step
+            return;
+        }
+    }
+
+    // Validate for One-Tailed Tests
+    if (normalizedUserRule === normalizedCorrectRule) {
+        document.getElementById("result-rejection-rule").textContent = "Correct! Your rejection rule is valid.";
+        document.getElementById("result-rejection-rule").className = "result correct";
+        document.getElementById("step-5").style.display = "block"; // Proceed to the next step
+    } else {
+        document.getElementById("result-rejection-rule").textContent = `Incorrect. The correct rule is: "${correctRule}".`;
+        document.getElementById("result-rejection-rule").className = "result incorrect";
+    }
+}
+
+
 // Drag-and-Drop Logic
 function allowDrop(event) {
     event.preventDefault();
@@ -106,7 +198,7 @@ function drop(event) {
     event.target.textContent = document.getElementById(data).textContent;
 }
 
-// Step 2: Check Hypotheses
+// Step 3: Check Hypotheses
 function checkHypotheses() {
     const h0Symbol = document.getElementById("h0-symbol-drop").textContent.trim();
     const h1Symbol = document.getElementById("h1-symbol-drop").textContent.trim();
@@ -125,18 +217,18 @@ function checkHypotheses() {
     }
 
     if (h0Symbol === correctH0 && h1Symbol === correctH1) {
-        document.getElementById("result-step2").textContent = "Correct! You've set up the hypotheses correctly.";
-        document.getElementById("result-step2").className = "result correct";
+        document.getElementById("result-hypo").textContent = "Correct! You've set up the hypotheses correctly.";
+        document.getElementById("result-hypo").className = "result correct";
 
         // Show the next step
-        document.getElementById("step-3").style.display = "block";
+        document.getElementById("step-4").style.display = "block";
     } else {
-        document.getElementById("result-step2").textContent = `Incorrect. For a ${testType.replace('-', ' ')} test, the null hypothesis should use '${correctH0}' and the alternative should use '${correctH1}'.`;
-        document.getElementById("result-step2").className = "result incorrect";
+        document.getElementById("result-hypo").textContent = `Incorrect. For a ${testType.replace('-', ' ')} test, the null hypothesis should use '${correctH0}' and the alternative should use '${correctH1}'.`;
+        document.getElementById("result-hypo").className = "result incorrect";
     }
 }
 
-// Step 3: Check Test Statistic
+// Step 4: Check Test Statistic
 function checkTestStatistic() {
     const userSumOfProducts = parseFloat(document.getElementById("sum-of-products").value);
     const userR = parseFloat(document.getElementById("correlation").value);
@@ -162,7 +254,7 @@ function checkTestStatistic() {
         }
 
         // Display the next step and calculated values
-        document.getElementById("step-4").style.display = "block";
+        document.getElementById("step-6").style.display = "block";
         document.getElementById("calculated-r").textContent = `${r.toFixed(3)}`;
     } else {
         const feedback = [];
@@ -252,18 +344,22 @@ try {
     console.error(error.message);
 }
 
-// Step 4: Check Critical Value
+// Step 2: Check Critical Value
 function checkCriticalValue() {
     const userCriticalValue = parseFloat(document.getElementById("user-critical-value").value);
 
     if (Math.abs(userCriticalValue - criticalValue) < 0.001) {
         document.getElementById("result-critical-value").textContent = "Correct! You've identified the critical value.";
         document.getElementById("result-critical-value").className = "result correct";
+
+        // Proceed to the next step
+        document.getElementById("step-3").style.display = "block";
     } else {
         document.getElementById("result-critical-value").textContent = `Incorrect. The correct critical value is ±${criticalValue.toFixed(3)}.`;
         document.getElementById("result-critical-value").className = "result incorrect";
     }
 }
+
 
 // Step 4: Check Decision
 function checkDecision() {
@@ -277,7 +373,7 @@ function checkDecision() {
         document.getElementById("result-step4").className = "result correct";
 
         // Show Step 5
-        document.getElementById("step-5").style.display = "block";
+        document.getElementById("step-7").style.display = "block";
     } else {
         const feedback = `The correct decision is to ${correctDecision} the null hypothesis because the correlation coefficient (${r.toFixed(
             3
@@ -289,9 +385,9 @@ function checkDecision() {
     }
 }
 
+// Step 6: Decision
 
-
-// Step 5: Check Effect Size
+// Step 7: Check Effect Size
 function checkEffectSize() {
     console.log("checkEffectSize function triggered");
 
@@ -306,8 +402,6 @@ function checkEffectSize() {
         document.getElementById("result-step5").textContent = "Correct! You've calculated the effect size.";
         document.getElementById("result-step5").className = "result correct";
 
-        // Show the next step
-        document.getElementById("step-6").style.display = "block";
 
         // Show "Generate New Problem" button
         const generateButton = document.getElementById("generate-problem-button");
@@ -327,4 +421,90 @@ function checkEffectSize() {
 
 
 
+function generateNewProblem() {
+    console.log("Generating a new problem...");
 
+    // Hide all steps
+    const steps = [
+        "data-table-container",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "step-6",
+        "step-7"
+    ];
+
+    steps.forEach(stepId => {
+        const element = document.getElementById(stepId);
+        if (element) {
+            element.style.display = "none";
+            console.log(`Hid step: ${stepId}`);
+        }
+    });
+
+    // Clear all inputs
+    const inputFields = [
+        "user-critical-value",
+        "sum-of-products",
+        "correlation",
+        "rejection-rule",
+        "decision",
+        "effect-size"
+    ];
+
+    inputFields.forEach(inputId => {
+        const inputElement = document.getElementById(inputId);
+        if (inputElement) {
+            if (inputElement.tagName === "SELECT") {
+                inputElement.value = ""; // Reset dropdown
+            } else if (inputElement.tagName === "TEXTAREA" || inputElement.tagName === "INPUT") {
+                inputElement.value = ""; // Reset text input and text area
+            }
+            console.log(`Cleared input: ${inputId}`);
+        }
+    });
+
+    // Clear results or feedback
+    const resultElements = [
+        "result-critical-value",
+        "result-hypo",
+        "result-rejection-rule",
+        "result-step3",
+        "result-step4",
+        "result-step5"
+    ];
+
+    resultElements.forEach(resultId => {
+        const resultElement = document.getElementById(resultId);
+        if (resultElement) {
+            resultElement.textContent = ""; // Clear feedback text
+            resultElement.className = "result"; // Reset class
+            console.log(`Cleared result: ${resultId}`);
+        }
+    });
+
+    // Reset data table body
+    const dataTableBody = document.getElementById("data-table-body");
+    if (dataTableBody) {
+        dataTableBody.innerHTML = "";
+        console.log("Cleared data table.");
+    }
+
+    // Reset drag-and-drop areas
+    const dropAreas = [
+        { id: "h0-symbol-drop", placeholder: "[Drop Here]" },
+        { id: "h1-symbol-drop", placeholder: "[Drop Here]" }
+    ];
+
+    dropAreas.forEach(dropArea => {
+        const element = document.getElementById(dropArea.id);
+        if (element) {
+            element.textContent = dropArea.placeholder; // Reset to placeholder text
+            console.log(`Reset drag-and-drop area: ${dropArea.id}`);
+        }
+    });
+
+    // Call generateScenario to create a new problem
+    generateScenario();
+}
