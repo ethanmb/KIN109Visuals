@@ -8,9 +8,10 @@ function generateRawData(mean, sd, n) {
     });
 }
 
+
 function renderHSDFormula() {
     const formulaContainer = document.getElementById("hsd-formula");
-    formulaContainer.innerHTML = `\\[ \\text{HSD} = q \\cdot \\sqrt{\\frac{\\text{MS}_{\\text{WG}}}{n}} \\]`;
+    formulaContainer.innerHTML = `\\[ \\text{HSD} = q \\cdot \\sqrt{\\frac{\\text{MS}_{\\text{error}}}{n}} \\]`;
     MathJax.typeset(); // Re-render MathJax content
 }
 
@@ -41,34 +42,47 @@ function clearTable() {
 function calculateStatistics(group1, group2, group3) {
     const allGroups = [group1, group2, group3];
 
-    // Calculate group means
-    const groupMeans = allGroups.map(group => jStat.mean(group.map(Number)));
+    // Convert raw data to numbers (if not already)
+    const numericGroups = allGroups.map(group => group.map(Number));
+
+    // Calculate group means (with precision)
+    const groupMeans = numericGroups.map(group => parseFloat(jStat.mean(group).toFixed(2)));
+    console.log("Group Means:", groupMeans);
 
     // Calculate grand mean
-    const grandMean = jStat.mean(groupMeans);
-
-    // Sample size (assumes equal n across groups)
-    const n = group1.length;
+    const grandMean = parseFloat(jStat.mean(groupMeans).toFixed(2));
+    console.log("Grand Mean:", grandMean);
 
     // Sum of squares between groups (SSB)
+    const n = numericGroups[0].length; // Assumes equal n across groups
     const ssBetween = n * groupMeans.reduce((sum, mean) => sum + Math.pow(mean - grandMean, 2), 0);
+    console.log("SSB:", ssBetween);
 
-    // Sum of squares within groups (SSW)
-    const ssWithin = allGroups.reduce((total, group, idx) => {
-        return total + group.reduce((sum, value) => {
-            return sum + Math.pow(value - groupMeans[idx], 2);
-        }, 0);
-    }, 0);
+    // Calculate standard deviations for each group
+    const groupSDs = numericGroups.map(group => jStat.stdev(group, true));
+    console.log("Standard Deviations (SDs):", groupSDs);
+
+    // Calculate SS Within Groups (SSW) using group standard deviations
+    const ssWithin = (n - 1) * (
+        Math.pow(groupSDs[0], 2) +
+        Math.pow(groupSDs[1], 2) +
+        Math.pow(groupSDs[2], 2)
+    );
+    console.log("SSW (Simplified Calculation):", ssWithin);
 
     // Degrees of freedom within groups
-    const dfWithin = group1.length * 3 - 3; // (n * k) - k
+    const totalObservations = numericGroups.reduce((sum, group) => sum + group.length, 0);
+    const dfWithin = totalObservations - 3; // k = 3 groups
+    console.log("Degrees of Freedom (Within):", dfWithin);
 
     // Mean square error
     const mse = ssWithin / dfWithin;
+    console.log("MSWG (Program):", mse);
 
     // Return all computed statistics
-    return { ssBetween, ssWithin, mse, groupMeans, grandMean, dfWithin };
+    return { ssBetween, ssWithin, mse, groupMeans, grandMean, dfWithin, groupSDs };
 }
+
 
 
 function generateProblem() {
@@ -81,43 +95,49 @@ function generateProblem() {
     const group3 = generateRawData(45, 5, n); // Mean = 45, SD = 5
 
     // Compute statistics using calculateStatistics
-    const { ssBetween, ssWithin, mse, groupMeans, grandMean, dfWithin } =
+    const { ssBetween, ssWithin, mse, groupMeans, grandMean, dfWithin, groupSDs } =
         calculateStatistics(group1, group2, group3);
 
     // Store current problem details
-    currentProblem = { group1, group2, group3, mse, groupMeans, dfWithin, n };
+    currentProblem = { group1, group2, group3, mse, groupMeans, dfWithin, groupSDs, n };
+
+    // Debug generated data
+    console.log("Generated Data (Group 1):", group1);
+    console.log("Mean (Group 1):", jStat.mean(group1));
+    console.log("SD (Group 1):", jStat.stdev(group1, true));
+    console.log("Computed Statistics:", { ssBetween, ssWithin, mse, groupMeans, grandMean, dfWithin, groupSDs });
 
     // Question text
     const questionText = `
         A researcher conducted an experiment to evaluate the effectiveness of three recovery methods:
         Foam Rolling, Massage, and Compression Gear. The table below summarizes the group statistics.
         Conduct Tukey's HSD test to determine which methods significantly differ at α = 0.05. 
-        Mean Square Error (MSE): ${mse.toFixed(2)}, Degrees of Freedom (Within): ${dfWithin}.
+        Mean Square Within Group (MSWG): ${mse.toFixed(2)}, Degrees of Freedom (Within): ${dfWithin}.
     `;
 
     // Update problem description
     const problemDescription = document.getElementById("problem-description");
     problemDescription.innerHTML = questionText;
 
-    // Populate the table dynamically
+    // Populate the table dynamically using returned SDs
     const problemTableBody = document.querySelector("#problem-table tbody");
     problemTableBody.innerHTML = `
         <tr>
             <td>1. Foam Rolling</td>
             <td>${groupMeans[0].toFixed(2)}</td>
-            <td>${jStat.stdev(group1.map(Number)).toFixed(2)}</td>
+            <td>${groupSDs[0].toFixed(2)}</td>
             <td>${n}</td>
         </tr>
         <tr>
             <td>2. Massage</td>
             <td>${groupMeans[1].toFixed(2)}</td>
-            <td>${jStat.stdev(group2.map(Number)).toFixed(2)}</td>
+            <td>${groupSDs[1].toFixed(2)}</td>
             <td>${n}</td>
         </tr>
         <tr>
             <td>3. Compression Gear</td>
             <td>${groupMeans[2].toFixed(2)}</td>
-            <td>${jStat.stdev(group3.map(Number)).toFixed(2)}</td>
+            <td>${groupSDs[2].toFixed(2)}</td>
             <td>${n}</td>
         </tr>
     `;
@@ -128,6 +148,7 @@ function generateProblem() {
     document.getElementById("problem-table").classList.remove("hidden");
     document.getElementById("calculation-area").classList.remove("hidden");
 }
+
 
 
 function toggleQTable() {
