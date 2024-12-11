@@ -139,15 +139,15 @@ function checkRejectionRule() {
     // Determine the correct rejection rule based on the test type
     let correctRule;
     if (testType === "Two-Tailed") {
-        correctRule = `Reject H0 if r < -${criticalValue.toFixed(3)} or r > ${criticalValue.toFixed(3)}`;
+        correctRule = `If r < -${criticalValue.toFixed(3)} or r > ${criticalValue.toFixed(3)}, Reject H0; otherwise do not reject.`;
     } else if (testType === "One-Tailed Positive") {
-        correctRule = `Reject H0 if r > ${criticalValue.toFixed(3)}`;
+        correctRule = `If r > ${criticalValue.toFixed(3)}, Reject H0; otherwise do not reject.`;
     } else if (testType === "One-Tailed Negative") {
-        correctRule = `Reject H0 if r < -${criticalValue.toFixed(3)}`;
+        correctRule = `If r < -${criticalValue.toFixed(3)}, Reject H0; otherwise do not reject.`;
     } else {
-        const fallbackRule = `Two-Tailed: Reject H0 if r < -${criticalValue.toFixed(3)} or r > ${criticalValue.toFixed(3)}; ` +
-                             `One-Tailed Positive: Reject H0 if r > ${criticalValue.toFixed(3)}; ` +
-                             `One-Tailed Negative: Reject H0 if r < -${criticalValue.toFixed(3)}.`;
+        const fallbackRule = `Two-Tailed: If r < -${criticalValue.toFixed(3)} or r > ${criticalValue.toFixed(3)}, Reject H0; otherwise do not reject. ` +
+                             `One-Tailed Positive: If r > ${criticalValue.toFixed(3)}, Reject H0; otherwise do not reject. ` +
+                             `One-Tailed Negative: If r < -${criticalValue.toFixed(3)}, Reject H0; otherwise do not reject.`;
         document.getElementById("result-rejection-rule").textContent = `Error: Invalid test type. Valid rejection rules are:\n${fallbackRule}`;
         document.getElementById("result-rejection-rule").className = "result incorrect";
         return;
@@ -159,28 +159,64 @@ function checkRejectionRule() {
 
     // Special handling for Two-Tailed Test
     if (testType === "Two-Tailed") {
-        const startsCorrectly = normalizedUserRule.startsWith("reject h0 if");
+        const startsCorrectly = normalizedUserRule.startsWith("if r");
         const includesLower = normalizedUserRule.includes(`r < -${criticalValue.toFixed(3)}`);
         const includesUpper = normalizedUserRule.includes(`r > ${criticalValue.toFixed(3)}`);
+        const includesRejection = normalizedUserRule.includes("reject h0");
+        const includesNonRejection = normalizedUserRule.includes("otherwise do not reject");
 
-        if (startsCorrectly && includesLower && includesUpper) {
+        if (startsCorrectly && includesLower && includesUpper && includesRejection && includesNonRejection) {
             document.getElementById("result-rejection-rule").textContent = "Correct! Your rejection rule is valid.";
             document.getElementById("result-rejection-rule").className = "result correct";
             document.getElementById("step-5").style.display = "block"; // Proceed to the next step
             return;
+        } else {
+            document.getElementById("result-rejection-rule").textContent = `Incorrect. The correct rule is: "${correctRule}".`;
+            document.getElementById("result-rejection-rule").className = "result incorrect";
+            return;
         }
     }
 
-    // Validate for One-Tailed Tests
-    if (normalizedUserRule === normalizedCorrectRule) {
-        document.getElementById("result-rejection-rule").textContent = "Correct! Your rejection rule is valid.";
-        document.getElementById("result-rejection-rule").className = "result correct";
-        document.getElementById("step-5").style.display = "block"; // Proceed to the next step
-    } else {
-        document.getElementById("result-rejection-rule").textContent = `Incorrect. The correct rule is: "${correctRule}".`;
-        document.getElementById("result-rejection-rule").className = "result incorrect";
+    // Validation for One-Tailed Positive Test
+    if (testType === "One-Tailed Positive") {
+        const startsCorrectly = normalizedUserRule.startsWith("if r");
+        const includesUpper = normalizedUserRule.includes(`r > ${criticalValue.toFixed(3)}`);
+        const includesRejection = normalizedUserRule.includes("reject h0");
+        const includesNonRejection = normalizedUserRule.includes("otherwise do not reject");
+
+        if (startsCorrectly && includesUpper && includesRejection && includesNonRejection) {
+            document.getElementById("result-rejection-rule").textContent = "Correct! Your rejection rule is valid.";
+            document.getElementById("result-rejection-rule").className = "result correct";
+            document.getElementById("step-5").style.display = "block"; // Proceed to the next step
+            return;
+        } else {
+            document.getElementById("result-rejection-rule").textContent = `Incorrect. The correct rule is: "${correctRule}".`;
+            document.getElementById("result-rejection-rule").className = "result incorrect";
+            return;
+        }
+    }
+
+    // Validation for One-Tailed Negative Test
+    if (testType === "One-Tailed Negative") {
+        const startsCorrectly = normalizedUserRule.startsWith("if r");
+        const includesLower = normalizedUserRule.includes(`r < -${criticalValue.toFixed(3)}`);
+        const includesRejection = normalizedUserRule.includes("reject h0");
+        const includesNonRejection = normalizedUserRule.includes("otherwise do not reject");
+
+        if (startsCorrectly && includesLower && includesRejection && includesNonRejection) {
+            document.getElementById("result-rejection-rule").textContent = "Correct! Your rejection rule is valid.";
+            document.getElementById("result-rejection-rule").className = "result correct";
+            document.getElementById("step-5").style.display = "block"; // Proceed to the next step
+            return;
+        } else {
+            document.getElementById("result-rejection-rule").textContent = `Incorrect. The correct rule is: "${correctRule}".`;
+            document.getElementById("result-rejection-rule").className = "result incorrect";
+            return;
+        }
     }
 }
+
+
 
 
 // Drag-and-Drop Logic
