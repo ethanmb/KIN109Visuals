@@ -245,10 +245,10 @@ function checkHypotheses() {
         correctH0 = "=";
         correctH1 = "≠";
     } else if (testType === "one-tailed-positive") {
-        correctH0 = "=";
+        correctH0 = "≤";
         correctH1 = ">";
     } else if (testType === "one-tailed-negative") {
-        correctH0 = "=";
+        correctH0 = "≥";
         correctH1 = "<";
     }
 
