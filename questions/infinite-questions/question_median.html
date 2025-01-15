@@ -1,86 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Median Practice Question</title>
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #333;
-            padding: 20px;
-        }
-        h1 {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        p, input, button {
-            font-size: 16px;
-            margin: 10px 0;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        input {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-    </style>
-    <script>
-        let correctAnswer;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Median Practice</title>
+  <style>
+    .canvas-lms-style {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
 
-        function generateQuestion() {
-            // Generate five random numbers between 0 and 20
-            let numbers = [];
-            for (let i = 0; i < 5; i++) {
-                numbers.push(Math.floor(Math.random() * 21));
-            }
+    h1 {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
 
-            // Sort the numbers and calculate the median
-            numbers.sort((a, b) => a - b);
-            let middle = Math.floor(numbers.length / 2);
+    p {
+        font-size: 16px;
+        margin: 10px 0;
+    }
 
-            if (numbers.length % 2 === 0) {
-                correctAnswer = ((numbers[middle - 1] + numbers[middle]) / 2).toFixed(2);
-            } else {
-                correctAnswer = numbers[middle].toFixed(2);
-            }
+    input {
+        font-size: 16px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: calc(100% - 20px);
+        margin: 5px 0;
+    }
 
-            // Display the question
-            document.getElementById("question").innerText = 
-                "Calculate the median of the following numbers (report your answer to 2 decimal places): " + numbers.join(", ");
-            
-            // Clear previous answer and result
-            document.getElementById("studentAnswer").value = '';
-            document.getElementById("result").innerText = '';
-        }
+    button {
+        display: block;
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px auto;
+    }
 
-        function checkAnswer() {
-            let studentAnswer = document.getElementById("studentAnswer").value;
-            let result = document.getElementById("result");
-            
-            if (studentAnswer === correctAnswer) {
-                result.innerText = "Correct!";
-                result.style.color = "green";
-            } else {
-                result.innerText = `Incorrect. The correct answer is ${correctAnswer}.`;
-                result.style.color = "red";
-            }
-        }
-    </script>
+    button:hover {
+        background-color: #45a049;
+    }
+
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
 </head>
-<body onload="generateQuestion()">
-    <p id="question"></p>
-    <input type="number" id="studentAnswer" step="0.01" placeholder="Your answer">
-    <button onclick="checkAnswer()">Submit Answer</button>
-    <p id="result"></p>
-    <button onclick="generateQuestion()">Generate New Question</button>
+<body>
+
+<div class="canvas-lms-style">
+  <h3>Median Infinite Practice Problem</h3>
+  <p id="question"></p>
+  <input type="number" id="studentAnswer" step="0.01" placeholder="Your answer">
+  <button onclick="checkAnswer()">Submit Answer</button>
+  <p id="feedback"></p>
+  <button onclick="generateQuestion()">Generate New Question</button>
+</div>
+
+<script>
+let correctAnswer;
+
+function generateQuestion() {
+  let numbers = [];
+  for (let i = 0; i < 5; i++) {
+    numbers.push(Math.floor(Math.random() * 21));
+  }
+
+  numbers.sort((a, b) => a - b);
+  let middle = Math.floor(numbers.length / 2);
+
+  if (numbers.length % 2 === 0) {
+    correctAnswer = ((numbers[middle - 1] + numbers[middle]) / 2).toFixed(2);
+  } else {
+    correctAnswer = numbers[middle].toFixed(2);
+  }
+
+  document.getElementById("question").innerText = 
+    "Calculate the median of the following numbers (report your answer to 2 decimal places): " + numbers.join(", ");
+
+  document.getElementById("studentAnswer").value = '';
+  document.getElementById("feedback").innerText = '';
+}
+
+function checkAnswer() {
+  let studentAnswer = document.getElementById("studentAnswer").value;
+  let feedback = document.getElementById("feedback");
+
+  if (studentAnswer === correctAnswer) {
+    feedback.innerText = "Correct!";
+    feedback.style.color = "green";
+  } else {
+    feedback.innerText = `Incorrect. The correct answer is ${correctAnswer}.`;
+    feedback.style.color = "red";
+  }
+}
+
+generateQuestion();
+</script>
+
 </body>
 </html>

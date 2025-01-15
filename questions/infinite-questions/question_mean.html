@@ -1,38 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mean Practice Question</title>
     <style>
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #333;
+        .canvas-lms-style {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
             padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
         }
+
+
         h1 {
             font-size: 24px;
             font-weight: bold;
+            margin-bottom: 15px;
         }
-        p, input, button {
+
+        p {
             font-size: 16px;
             margin: 10px 0;
         }
+
+        input {
+            font-size: 16px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: calc(100% - 20px);
+            margin: 5px 0;
+        }
+
         button {
-            padding: 10px 20px;
-            background-color: #007bff;
+            display: block;
+            background-color: #4CAF50;
             color: white;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin: 10px auto;
         }
+
         button:hover {
-            background-color: #0056b3;
+            background-color: #45a049;
         }
-        input {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
+
+        #result {
+            margin-top: 10px;
+            font-weight: bold;
         }
     </style>
+</head>
+<body>
+    <div class="canvas-lms-style">
+        <h1>Mean Practice Question</h1>
+        <p id="question"></p>
+        <input type="number" id="studentAnswer" step="0.01" placeholder="Your answer">
+        <button onclick="checkAnswer()">Submit Answer</button>
+        <p id="result"></p>
+        <button onclick="generateQuestion()">Generate New Question</button>
+    </div>
+
     <script>
         let correctAnswer;
 
@@ -68,13 +103,9 @@
                 result.style.color = "red";
             }
         }
+
+        // Initialize the first question
+        generateQuestion();
     </script>
-</head>
-<body onload="generateQuestion()">
-    <p id="question"></p>
-    <input type="number" id="studentAnswer" step="0.01" placeholder="Your answer">
-    <button onclick="checkAnswer()">Submit Answer</button>
-    <p id="result"></p>
-    <button onclick="generateQuestion()">Generate New Question</button>
 </body>
 </html>
